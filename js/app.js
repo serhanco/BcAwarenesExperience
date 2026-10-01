@@ -14,22 +14,49 @@ let quizAnswers = { 1: null, 2: null, 3: null };
 let quizScore = 0;
 let statsAnimated = false;
 
-// ─── La Vie En Rose — Opening melodic fragment ───────────────
-// Notes: C4 D4 E4 C4 E4 F4 G4 A4 G4 (Je vois la vie en ro-se...)
-const MELODY = [
-    { freq: 261.63, name: 'C4' },  // 0→1: Je
-    { freq: 293.66, name: 'D4' },  // 1→2: vois
-    { freq: 329.63, name: 'E4' },  // 2→3: la
-    { freq: 261.63, name: 'C4' },  // 3→4: vie
-    { freq: 329.63, name: 'E4' },  // 4→5: en
-    { freq: 349.23, name: 'F4' },  // 5→6: ro-
-    { freq: 392.00, name: 'G4' },  // 6→7: -se
-    { freq: 440.00, name: 'A4' },  // 7→8: Il
-    { freq: 392.00, name: 'G4' }   // 8→9: me...
+// ─── AMBIENT PIANO SCALE FOR SLIDES ───────────────
+// A magical, escalating C-Major arpeggio to build anticipation on clicks
+const AMBIENT_SCALE = [
+    { freq: 130.81, name: 'C3' },
+    { freq: 164.81, name: 'E3' },
+    { freq: 196.00, name: 'G3' },
+    { freq: 261.63, name: 'C4' },
+    { freq: 329.63, name: 'E4' },
+    { freq: 392.00, name: 'G4' },
+    { freq: 523.25, name: 'C5' },
+    { freq: 659.25, name: 'E5' },
+    { freq: 783.99, name: 'G5' }
 ];
 
-// C Major 7 Chord for the final form submit (arpeggiated finale)
-const FINAL_CHORD = [261.63, 329.63, 392.00, 493.88]; // C4, E4, G4, B4
+// ─── LA VIE EN ROSE FULL CHORUS (FINALE) ───────────────
+// "Quand il me prend dans ses bras, il me parle tout bas..."
+const LA_VIE_EN_ROSE_FINALE = [
+    { note: 392.00, time: 0 },    // Quand (G4)
+    { note: 392.00, time: 300 },  // il (G4)
+    { note: 329.63, time: 600 },  // me (E4)
+    { note: 261.63, time: 900 },  // prend (C4)
+    { note: 220.00, time: 1200 }, // dans ses bras (A3)
+
+    { note: 220.00, time: 2200 }, // Il (A3)
+    { note: 220.00, time: 2500 }, // me (A3)
+    { note: 261.63, time: 2800 }, // parle (C4)
+    { note: 246.94, time: 3100 }, // tout (B3)
+    { note: 196.00, time: 3400 }, // bas (G3)
+
+    { note: 196.00, time: 4400 }, // Je (G3)
+    { note: 220.00, time: 4700 }, // vois (A3)
+    { note: 261.63, time: 5000 }, // la (C4)
+    { note: 329.63, time: 5300 }, // vie (E4)
+    { note: 293.66, time: 5600 }, // en (D4)
+    { note: 261.63, time: 5900 }, // ro- (C4)
+    { note: 293.66, time: 6200 }, // -se (D4)
+
+    // Resolve with Cmaj7 chord arpeggio
+    { note: 261.63, time: 7000 }, // C4
+    { note: 329.63, time: 7050 }, // E4
+    { note: 392.00, time: 7100 }, // G4
+    { note: 493.88, time: 7150 }  // B4
+];
 
 // ─── AUDIO ───────────────────────────────────────────────────
 function initAudio() {
@@ -49,7 +76,7 @@ function playNote(noteIndex, overrideFreq = null) {
     if (!soundEnabled) return;
     if (!audioCtx) return;
 
-    const note = overrideFreq ? { freq: overrideFreq, name: 'ChordNote' } : (MELODY[noteIndex] || MELODY[MELODY.length - 1]);
+    const note = overrideFreq ? { freq: overrideFreq, name: 'ChordNote' } : (AMBIENT_SCALE[noteIndex] || AMBIENT_SCALE[AMBIENT_SCALE.length - 1]);
 
     // Master gain (shared output)
     const masterGain = audioCtx.createGain();
@@ -305,9 +332,9 @@ function submitForm(event) {
     event.preventDefault();
     initAudio();
     
-    // Play a beautiful C Major 7 arpeggiated chord for the finale
-    FINAL_CHORD.forEach((freq, idx) => {
-        setTimeout(() => playNote(null, freq), idx * 60);
+    // Play the full iconic La Vie En Rose chorus in tempo!
+    LA_VIE_EN_ROSE_FINALE.forEach(item => {
+        setTimeout(() => playNote(null, item.note), item.time);
     });
 
     const form = event.target;
