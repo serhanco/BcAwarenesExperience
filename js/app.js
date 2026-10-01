@@ -17,10 +17,17 @@ let statsAnimated = false;
 // ─── TONE.JS SAMPLER (Salamander Grand Piano) ─────────────────
 let piano = null;
 let pianoLoaded = false;
+let fallbackSynth = null;
 
 function initPiano() {
-    if (piano || typeof Tone === 'undefined') return;
+    if (typeof Tone === 'undefined') return;
     
+    // Better electric-piano-like fallback while samples load
+    fallbackSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: "triangle8" },
+        envelope: { attack: 0.02, decay: 1.5, sustain: 0.2, release: 2 }
+    }).toDestination();
+
     // Create sampler immediately. It loads buffers even if context is suspended.
     piano = new Tone.Sampler({
         urls: {
@@ -39,50 +46,51 @@ function initPiano() {
     }).toDestination();
 }
 
-// ─── AMBIENT SCALE FOR SLIDE CLICKS (C Major rising arpeggio) ─
+// ─── MELODY SPLIT FOR SLIDES & FORM ───────────────────────────
+// The user explicitly requested:
+// "10 slayt için La Vie En Rose'un en ama en bilindik kısmındaki notaları kullanalım"
+
+// Part 1: First 10 notes for the 10 slide clicks
+// Visual Notes: DO si la sol mi DO si (7) + la sol mi (3) = 10 notes
 const AMBIENT_SCALE = [
-    'C4','D4','E4','F4','G4','A4','B4','C5','D5','E5'
+    'C5', // 1. Quand (DO)
+    'B4', // 2. il (si)
+    'A4', // 3. me (la)
+    'G4', // 4. prend (sol)
+    'E4', // 5. dans (mi)
+    'C5', // 6. ses (DO)
+    'B4', // 7. bras (si)
+    'A4', // 8. Il (la)
+    'G4', // 9. me (sol)
+    'E4'  // 10. par- (mi)
 ];
 
-// Fallback frequencies when Tone.js unavailable
 const AMBIENT_SCALE_FREQ = [
-    261.63, 293.66, 329.63, 349.23, 392.00,
-    440.00, 493.88, 523.25, 587.33, 659.25
+    523.25, 493.88, 440.00, 392.00, 329.63,
+    523.25, 493.88, 440.00, 392.00, 329.63
 ];
 
-// ─── LA VIE EN ROSE — Correct Chorus Melody (C Major) ────────
-// "Quand il me prend dans ses bras / Il me parle tout bas / Je vois la vie en rose"
+// Part 2: Remaining 9 notes + chord for the form submit
+// Visual Notes left: do si la (3) + sol mi sol do si la (6) = 9 notes
 const LA_VIE_EN_ROSE_NOTES = [
-    // --- Quand il me prend dans ses bras : DO si la sol mi DO si ---
-    { note: 'C5', freq: 523.25, time: 0 },       // Quand (DO)
-    { note: 'B4', freq: 493.88, time: 350 },     // il (si)
-    { note: 'A4', freq: 440.00, time: 700 },     // me (la)
-    { note: 'G4', freq: 392.00, time: 1050 },    // prend (sol)
-    { note: 'E4', freq: 329.63, time: 1400 },    // dans (mi)
-    { note: 'C5', freq: 523.25, time: 1750 },    // ses (DO)
-    { note: 'B4', freq: 493.88, time: 2100 },    // bras (si)
-
-    // --- Il me parle tout bas : la sol mi do si la ---
-    { note: 'A4', freq: 440.00, time: 3200 },    // Il (la)
-    { note: 'G4', freq: 392.00, time: 3550 },    // me (sol)
-    { note: 'E4', freq: 329.63, time: 3900 },    // par- (mi)
-    { note: 'C4', freq: 261.63, time: 4250 },    // -le (do)
-    { note: 'B3', freq: 246.94, time: 4600 },    // tout (si)
-    { note: 'A3', freq: 220.00, time: 4950 },    // bas (la)
+    // --- Il me parle tout bas (kalan kısım) ---
+    { note: 'C4', freq: 261.63, time: 0 },       // -le (do)
+    { note: 'B3', freq: 246.94, time: 350 },     // tout (si)
+    { note: 'A3', freq: 220.00, time: 700 },     // bas (la)
 
     // --- Je vois la vie en rose : sol mi sol do si la ---
-    { note: 'G4', freq: 392.00, time: 6000 },    // Je (sol)
-    { note: 'E4', freq: 329.63, time: 6350 },    // vois (mi)
-    { note: 'G4', freq: 392.00, time: 6700 },    // la (sol)
-    { note: 'C4', freq: 261.63, time: 7050 },    // vie (do)
-    { note: 'B3', freq: 246.94, time: 7400 },    // en (si)
-    { note: 'A3', freq: 220.00, time: 7750 },    // rose (la)
+    { note: 'G4', freq: 392.00, time: 1700 },    // Je (sol)
+    { note: 'E4', freq: 329.63, time: 2050 },    // vois (mi)
+    { note: 'G4', freq: 392.00, time: 2400 },    // la (sol)
+    { note: 'C4', freq: 261.63, time: 2750 },    // vie (do)
+    { note: 'B3', freq: 246.94, time: 3100 },    // en (si)
+    { note: 'A3', freq: 220.00, time: 3450 },    // rose (la)
 
     // --- Final Cmaj7 arpej ---
-    { note: 'C4', freq: 261.63, time: 8800 },
-    { note: 'E4', freq: 329.63, time: 8860 },
-    { note: 'G4', freq: 392.00, time: 8920 },
-    { note: 'B4', freq: 493.88, time: 8980 },
+    { note: 'C4', freq: 261.63, time: 4800 },
+    { note: 'E4', freq: 329.63, time: 4860 },
+    { note: 'G4', freq: 392.00, time: 4920 },
+    { note: 'B4', freq: 493.88, time: 4980 },
 ];
 
 // ─── SAFARI AUDIO UNLOCK ──────────────────────────────────────
@@ -98,13 +106,23 @@ async function unlockAudio() {
     }
 }
 
-// ─── PLAY VIA TONE.JS SAMPLER ─────────────────────────────────
+// ─── PLAY VIA TONE.JS SAMPLER / SYNTH ─────────────────────────
 function playViaTone(noteName, duration = '2n') {
-    if (piano && pianoLoaded && Tone.context.state === 'running') {
+    if (typeof Tone === 'undefined' || Tone.context.state !== 'running') return false;
+
+    // Use actual piano samples if loaded
+    if (piano && pianoLoaded) {
         try {
             piano.triggerAttackRelease(noteName, duration);
             return true;
-        } catch(e) { return false; }
+        } catch(e) { }
+    } 
+    // Otherwise use nice synth fallback
+    else if (fallbackSynth) {
+        try {
+            fallbackSynth.triggerAttackRelease(noteName, duration);
+            return true;
+        } catch(e) { }
     }
     return false;
 }
