@@ -233,13 +233,21 @@ function nextStep() {
     // Init & play audio
     playNote(currentStep);
 
-    // Piano press animation
-    const piano = document.querySelector('.piano-shape');
-    if (piano) {
-        piano.classList.remove('pressed');
-        void piano.offsetWidth;
-        piano.classList.add('pressed');
-        setTimeout(() => piano.classList.remove('pressed'), 350);
+    // Elegant sound wave animation (instead of jumping)
+    const ripples = document.getElementById('svg-ripples');
+    if (ripples) {
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', '150'); // Center relative to viewBox 300x560
+        circle.setAttribute('cy', '375');
+        circle.setAttribute('r', '5');
+        circle.setAttribute('fill', 'none');
+        circle.setAttribute('stroke', 'rgba(255, 255, 255, 0.4)');
+        circle.setAttribute('class', 'svg-ripple-anim');
+        ripples.appendChild(circle);
+        
+        setTimeout(() => {
+            if (circle.parentNode) circle.parentNode.removeChild(circle);
+        }, 1500);
     }
 
     // Hide tap hint after first interaction

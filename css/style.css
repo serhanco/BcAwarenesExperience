@@ -76,13 +76,21 @@ h1,h2,h3 { font-family: 'Montserrat', sans-serif; }
     transform-origin: center;
     transition: transform 0.15s ease;
 }
-.piano-shape.pressed {
-    animation: piano-press 0.25s ease;
+.svg-ripple-anim {
+    transform-origin: 150px 375px; /* Center of the lower curve */
+    animation: svg-ripple 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
 }
-@keyframes piano-press {
-    0%   { transform: scale(1.0); }
-    40%  { transform: scale(0.985) translateX(3px); }
-    100% { transform: scale(1.0); }
+@keyframes svg-ripple {
+    0% {
+        transform: scale(0.1);
+        opacity: 0.9;
+        stroke-width: 15px;
+    }
+    100% {
+        transform: scale(25);
+        opacity: 0;
+        stroke-width: 0.5px;
+    }
 }
 
 /* Piano Keys */

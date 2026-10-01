@@ -14,7 +14,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/style.css?v=6">
 
     <script>
         tailwind.config = {
@@ -59,11 +59,14 @@
         class="relative w-full md:w-5/12 h-[38dvh] md:h-full flex-shrink-0 flex items-center justify-center cursor-pointer select-none"
         onclick="nextStep()" title="Tap the piano to continue">
 
-        <div class="relative h-full w-full max-w-[320px] md:max-w-none flex items-center justify-center">
+        <div class="relative h-full mx-auto flex items-center justify-center" style="aspect-ratio: 300 / 560; max-width: 100%;">
 
             <!-- Piano / Breast SVG Silhouette -->
             <svg class="piano-shape absolute inset-0 w-full h-full drop-shadow-2xl" viewBox="0 0 300 560" preserveAspectRatio="xMidYMid meet">
                 <defs>
+                    <clipPath id="pianoClip">
+                        <path d="M175,0 L175,90 C155,180 10,230 10,375 C10,470 75,555 175,555 L295,555 L295,0 Z"/>
+                    </clipPath>
                     <linearGradient id="pianoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                         <stop offset="0%" style="stop-color:#111111;stop-opacity:1" />
                         <stop offset="100%" style="stop-color:#2a2a2a;stop-opacity:1" />
@@ -75,6 +78,9 @@
                 <!-- Grand piano body + breast curve -->
                 <path d="M175,0 L175,90 C155,180 10,230 10,375 C10,470 75,555 175,555 L295,555 L295,0 Z"
                     fill="url(#pianoGrad)" filter="url(#shadow)"/>
+                
+                <!-- Sound waves container (clipped to piano shape) -->
+                <g id="svg-ripples" clip-path="url(#pianoClip)"></g>
             </svg>
 
             <!-- Piano Keys strip (right edge of piano body) -->
@@ -390,6 +396,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-<script src="js/app.js?v=5"></script>
+<script src="js/app.js?v=6"></script>
 </body>
 </html>
