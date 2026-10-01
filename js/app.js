@@ -70,27 +70,12 @@ const AMBIENT_SCALE_FREQ = [
     523.25, 493.88, 440.00, 392.00, 329.63
 ];
 
-// Part 2: Remaining 9 notes + chord for the form submit
-// Visual Notes left: do si la (3) + sol mi sol do si la (6) = 9 notes
+// Part 2: Just G, A, B, C for the form submit ("la vieeee eeeeen roooseee")
 const LA_VIE_EN_ROSE_NOTES = [
-    // --- Il me parle tout bas (kalan kısım) ---
-    { note: 'C4', freq: 261.63, time: 0 },       // -le (do)
-    { note: 'B3', freq: 246.94, time: 350 },     // tout (si)
-    { note: 'A3', freq: 220.00, time: 700 },     // bas (la)
-
-    // --- Je vois la vie en rose : sol mi sol do si la ---
-    { note: 'G4', freq: 392.00, time: 1700 },    // Je (sol)
-    { note: 'E4', freq: 329.63, time: 2050 },    // vois (mi)
-    { note: 'G4', freq: 392.00, time: 2400 },    // la (sol)
-    { note: 'C4', freq: 261.63, time: 2750 },    // vie (do)
-    { note: 'B3', freq: 246.94, time: 3100 },    // en (si)
-    { note: 'A3', freq: 220.00, time: 3450 },    // rose (la)
-
-    // --- Final Cmaj7 arpej ---
-    { note: 'C4', freq: 261.63, time: 4800 },
-    { note: 'E4', freq: 329.63, time: 4860 },
-    { note: 'G4', freq: 392.00, time: 4920 },
-    { note: 'B4', freq: 493.88, time: 4980 },
+    { note: 'G4', freq: 392.00, time: 0 },
+    { note: 'A4', freq: 440.00, time: 500 },
+    { note: 'B4', freq: 493.88, time: 1000 },
+    { note: 'C5', freq: 523.25, time: 1600 }
 ];
 
 // ─── SAFARI AUDIO UNLOCK ──────────────────────────────────────
