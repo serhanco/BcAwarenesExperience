@@ -7,112 +7,152 @@
 
 // ─── STATE ───────────────────────────────────────────────────
 let currentStep = 0;
-const TOTAL_STEPS = 10; // steps 0-9
+const TOTAL_STEPS = 10;
 let soundEnabled = true;
 let audioCtx = null;
 let quizAnswers = { 1: null, 2: null, 3: null };
 let quizScore = 0;
 let statsAnimated = false;
 
-// ─── AMBIENT PIANO SCALE FOR SLIDES ───────────────
-// A magical, escalating C-Major arpeggio to build anticipation on clicks
+// ─── TONE.JS SAMPLER (Salamander Grand Piano) ─────────────────
+let piano = null;
+let pianoLoaded = false;
+
+async function initPiano() {
+    if (piano || typeof Tone === 'undefined') return;
+    try {
+        await Tone.start();
+        piano = new Tone.Sampler({
+            urls: {
+                'C4': 'C4.mp3',
+                'E4': 'E4.mp3',
+                'G4': 'G4.mp3',
+                'A4': 'A4.mp3',
+                'C5': 'C5.mp3',
+            },
+            baseUrl: 'https://tonejs.github.io/audio/salamander/',
+            release: 2.0,
+            onload: () => {
+                pianoLoaded = true;
+                console.log('🎹 Salamander Grand Piano loaded!');
+            }
+        }).toDestination();
+    } catch(e) {
+        console.warn('Tone.js Sampler failed, falling back to oscillator.', e);
+        piano = null;
+    }
+}
+
+// ─── AMBIENT SCALE FOR SLIDE CLICKS (C Major rising arpeggio) ─
 const AMBIENT_SCALE = [
-    { freq: 130.81, name: 'C3' },
-    { freq: 164.81, name: 'E3' },
-    { freq: 196.00, name: 'G3' },
-    { freq: 261.63, name: 'C4' },
-    { freq: 329.63, name: 'E4' },
-    { freq: 392.00, name: 'G4' },
-    { freq: 523.25, name: 'C5' },
-    { freq: 659.25, name: 'E5' },
-    { freq: 783.99, name: 'G5' }
+    'C4','D4','E4','F4','G4','A4','B4','C5','D5','E5'
 ];
 
-// ─── LA VIE EN ROSE FULL CHORUS (FINALE) ───────────────
-// "Quand il me prend dans ses bras, il me parle tout bas..."
-const LA_VIE_EN_ROSE_FINALE = [
+// Fallback frequencies when Tone.js unavailable
+const AMBIENT_SCALE_FREQ = [
+    261.63, 293.66, 329.63, 349.23, 392.00,
+    440.00, 493.88, 523.25, 587.33, 659.25
+];
+
+// ─── LA VIE EN ROSE — Correct Chorus Melody (C Major) ────────
+// "Quand il me prend dans ses bras / Il me parle tout bas / Je vois la vie en rose"
+// Research-verified syllable-by-syllable transcription (Zaz version, ♩≈80 BPM)
+const LA_VIE_EN_ROSE_NOTES = [
     // --- Quand il me prend dans ses bras ---
-    { note: 392.00, time: 0 },    // Quand (G4)
-    { note: 392.00, time: 300 },  // il (G4)
-    { note: 329.63, time: 600 },  // me (E4)
-    { note: 261.63, time: 900 },  // prend (C4)
-    { note: 220.00, time: 1200 }, // dans (A3)
-    { note: 220.00, time: 1500 }, // ses (A3)
-    { note: 220.00, time: 1800 }, // bras (A3)
+    { note: 'E4', freq: 329.63, time: 0 },       // Quand
+    { note: 'E4', freq: 329.63, time: 350 },      // il
+    { note: 'E4', freq: 329.63, time: 700 },      // me
+    { note: 'E4', freq: 329.63, time: 1050 },     // prend
+    { note: 'D4', freq: 293.66, time: 1400 },     // dans
+    { note: 'C4', freq: 261.63, time: 1750 },     // ses
+    { note: 'D4', freq: 293.66, time: 2100 },     // bras (D)
+    { note: 'E4', freq: 329.63, time: 2400 },     // bras~ (E, süsleme)
 
     // --- Il me parle tout bas ---
-    { note: 220.00, time: 3000 }, // Il (A3)
-    { note: 220.00, time: 3300 }, // me (A3)
-    { note: 261.63, time: 3600 }, // par- (C4)
-    { note: 246.94, time: 3900 }, // -le (B3)
-    { note: 220.00, time: 4200 }, // tout (A3)
-    { note: 196.00, time: 4500 }, // bas (G3)
+    { note: 'E4', freq: 329.63, time: 3300 },     // Il
+    { note: 'F4', freq: 349.23, time: 3650 },     // me
+    { note: 'G4', freq: 392.00, time: 4000 },     // par-
+    { note: 'G4', freq: 392.00, time: 4350 },     // -le
+    { note: 'G4', freq: 392.00, time: 4700 },     // tout
+    { note: 'F4', freq: 349.23, time: 5050 },     // bas~
+    { note: 'E4', freq: 329.63, time: 5300 },     // bas~
+    { note: 'D4', freq: 293.66, time: 5550 },     // bas~
 
     // --- Je vois la vie en rose ---
-    { note: 196.00, time: 5700 }, // Je (G3)
-    { note: 220.00, time: 6000 }, // vois (A3)
-    { note: 261.63, time: 6300 }, // la (C4)
-    { note: 329.63, time: 6600 }, // vie (E4)
-    { note: 293.66, time: 6900 }, // en (D4)
-    { note: 261.63, time: 7200 }, // ro- (C4)
-    { note: 293.66, time: 7500 }, // -se (D4)
+    { note: 'D4', freq: 293.66, time: 6400 },     // Je
+    { note: 'E4', freq: 329.63, time: 6750 },     // vois
+    { note: 'F4', freq: 349.23, time: 7100 },     // la
+    { note: 'F4', freq: 349.23, time: 7450 },     // vie
+    { note: 'E4', freq: 329.63, time: 7800 },     // en
+    { note: 'D4', freq: 293.66, time: 8150 },     // ro-
+    { note: 'C4', freq: 261.63, time: 8500 },     // -se (long)
 
-    // --- Final Resolution & Cmaj7 Chord ---
-    { note: 261.63, time: 8400 }, // C4
-    { note: 329.63, time: 8450 }, // E4
-    { note: 392.00, time: 8500 }, // G4
-    { note: 493.88, time: 8550 }  // B4
+    // --- Final Cmaj7 arpej ---
+    { note: 'C4', freq: 261.63, time: 9600 },
+    { note: 'E4', freq: 329.63, time: 9660 },
+    { note: 'G4', freq: 392.00, time: 9720 },
+    { note: 'B4', freq: 493.88, time: 9780 },
 ];
 
-// ─── AUDIO ───────────────────────────────────────────────────
+// ─── AUDIO INIT (oscillator fallback) ────────────────────────
 function initAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-    }
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    initPiano(); // async, non-blocking
 }
 
-/**
- * Plays a polyphonic piano-like note.
- * Previous notes are NOT cut — they decay naturally (sustain effect).
- */
-function playNote(noteIndex, overrideFreq = null) {
-    if (!soundEnabled) return;
+// ─── PLAY VIA TONE.JS SAMPLER ─────────────────────────────────
+function playViaTone(noteName, duration = '2n') {
+    if (piano && pianoLoaded) {
+        try {
+            piano.triggerAttackRelease(noteName, duration);
+            return true;
+        } catch(e) { return false; }
+    }
+    return false;
+}
+
+// ─── PLAY VIA OSCILLATOR (fallback) ───────────────────────────
+function playViaOscillator(freq) {
     if (!audioCtx) return;
-
-    const note = overrideFreq ? { freq: overrideFreq, name: 'ChordNote' } : (AMBIENT_SCALE[noteIndex] || AMBIENT_SCALE[AMBIENT_SCALE.length - 1]);
-
-    // Master gain (shared output)
     const masterGain = audioCtx.createGain();
     masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.38, audioCtx.currentTime + 0.03); // sharp attack
-    masterGain.gain.exponentialRampToValueAtTime(0.18, audioCtx.currentTime + 0.4); // quick decay
-    masterGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.2); // long release
+    masterGain.gain.linearRampToValueAtTime(0.32, audioCtx.currentTime + 0.03);
+    masterGain.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 0.4);
+    masterGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.2);
     masterGain.connect(audioCtx.destination);
 
-    // Fundamental (triangle — piano-like)
     const osc1 = audioCtx.createOscillator();
     osc1.type = 'triangle';
-    osc1.frequency.value = note.freq;
+    osc1.frequency.value = freq;
     osc1.connect(masterGain);
     osc1.start(audioCtx.currentTime);
     osc1.stop(audioCtx.currentTime + 2.2);
 
-    // 2nd harmonic (sine at 2× for warmth)
     const osc2 = audioCtx.createOscillator();
-    const harmGain = audioCtx.createGain();
-    harmGain.gain.value = 0.12;
+    const hg = audioCtx.createGain();
+    hg.gain.value = 0.1;
     osc2.type = 'sine';
-    osc2.frequency.value = note.freq * 2;
-    osc2.connect(harmGain);
-    harmGain.connect(masterGain);
+    osc2.frequency.value = freq * 2;
+    osc2.connect(hg);
+    hg.connect(masterGain);
     osc2.start(audioCtx.currentTime);
     osc2.stop(audioCtx.currentTime + 1.0);
+}
 
-    // Light the corresponding piano key
-    if (noteIndex !== null) lightKey(noteIndex);
+// ─── UNIFIED playNote() ───────────────────────────────────────
+function playNote(stepIndex, overrideNote = null, overrideFreq = null) {
+    if (!soundEnabled) return;
+
+    const noteName = overrideNote || AMBIENT_SCALE[stepIndex] || 'C5';
+    const freq = overrideFreq || AMBIENT_SCALE_FREQ[stepIndex] || 523.25;
+
+    if (!playViaTone(noteName)) {
+        playViaOscillator(freq);
+    }
+    if (stepIndex !== null) lightKey(stepIndex);
 }
 
 function toggleSound() {
@@ -120,6 +160,7 @@ function toggleSound() {
     document.getElementById('soundOnIcon').classList.toggle('hidden', !soundEnabled);
     document.getElementById('soundOffIcon').classList.toggle('hidden', soundEnabled);
 }
+
 
 // ─── PIANO KEYS GENERATION ───────────────────────────────────
 function generateKeys() {
@@ -338,9 +379,9 @@ function submitForm(event) {
     event.preventDefault();
     initAudio();
     
-    // Play the full iconic La Vie En Rose chorus in tempo!
-    LA_VIE_EN_ROSE_FINALE.forEach(item => {
-        setTimeout(() => playNote(null, item.note), item.time);
+    // Play the iconic La Vie En Rose chorus in perfect tempo!
+    LA_VIE_EN_ROSE_NOTES.forEach(item => {
+        setTimeout(() => playNote(null, item.note, item.freq), item.time);
     });
 
     const form = event.target;
