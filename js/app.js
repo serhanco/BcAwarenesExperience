@@ -53,40 +53,36 @@ const AMBIENT_SCALE_FREQ = [
 // ─── LA VIE EN ROSE — Correct Chorus Melody (C Major) ────────
 // "Quand il me prend dans ses bras / Il me parle tout bas / Je vois la vie en rose"
 const LA_VIE_EN_ROSE_NOTES = [
-    // --- Quand il me prend dans ses bras ---
-    { note: 'E4', freq: 329.63, time: 0 },       // Quand
-    { note: 'E4', freq: 329.63, time: 350 },      // il
-    { note: 'E4', freq: 329.63, time: 700 },      // me
-    { note: 'E4', freq: 329.63, time: 1050 },     // prend
-    { note: 'D4', freq: 293.66, time: 1400 },     // dans
-    { note: 'C4', freq: 261.63, time: 1750 },     // ses
-    { note: 'D4', freq: 293.66, time: 2100 },     // bras (D)
-    { note: 'E4', freq: 329.63, time: 2400 },     // bras~ (E, süsleme)
+    // --- Quand il me prend dans ses bras : DO si la sol mi DO si ---
+    { note: 'C5', freq: 523.25, time: 0 },       // Quand (DO)
+    { note: 'B4', freq: 493.88, time: 350 },     // il (si)
+    { note: 'A4', freq: 440.00, time: 700 },     // me (la)
+    { note: 'G4', freq: 392.00, time: 1050 },    // prend (sol)
+    { note: 'E4', freq: 329.63, time: 1400 },    // dans (mi)
+    { note: 'C5', freq: 523.25, time: 1750 },    // ses (DO)
+    { note: 'B4', freq: 493.88, time: 2100 },    // bras (si)
 
-    // --- Il me parle tout bas ---
-    { note: 'E4', freq: 329.63, time: 3300 },     // Il
-    { note: 'F4', freq: 349.23, time: 3650 },     // me
-    { note: 'G4', freq: 392.00, time: 4000 },     // par-
-    { note: 'G4', freq: 392.00, time: 4350 },     // -le
-    { note: 'G4', freq: 392.00, time: 4700 },     // tout
-    { note: 'F4', freq: 349.23, time: 5050 },     // bas~
-    { note: 'E4', freq: 329.63, time: 5300 },     // bas~
-    { note: 'D4', freq: 293.66, time: 5550 },     // bas~
+    // --- Il me parle tout bas : la sol mi do si la ---
+    { note: 'A4', freq: 440.00, time: 3200 },    // Il (la)
+    { note: 'G4', freq: 392.00, time: 3550 },    // me (sol)
+    { note: 'E4', freq: 329.63, time: 3900 },    // par- (mi)
+    { note: 'C4', freq: 261.63, time: 4250 },    // -le (do)
+    { note: 'B3', freq: 246.94, time: 4600 },    // tout (si)
+    { note: 'A3', freq: 220.00, time: 4950 },    // bas (la)
 
-    // --- Je vois la vie en rose ---
-    { note: 'D4', freq: 293.66, time: 6400 },     // Je
-    { note: 'E4', freq: 329.63, time: 6750 },     // vois
-    { note: 'F4', freq: 349.23, time: 7100 },     // la
-    { note: 'F4', freq: 349.23, time: 7450 },     // vie
-    { note: 'E4', freq: 329.63, time: 7800 },     // en
-    { note: 'D4', freq: 293.66, time: 8150 },     // ro-
-    { note: 'C4', freq: 261.63, time: 8500 },     // -se (long)
+    // --- Je vois la vie en rose : sol mi sol do si la ---
+    { note: 'G4', freq: 392.00, time: 6000 },    // Je (sol)
+    { note: 'E4', freq: 329.63, time: 6350 },    // vois (mi)
+    { note: 'G4', freq: 392.00, time: 6700 },    // la (sol)
+    { note: 'C4', freq: 261.63, time: 7050 },    // vie (do)
+    { note: 'B3', freq: 246.94, time: 7400 },    // en (si)
+    { note: 'A3', freq: 220.00, time: 7750 },    // rose (la)
 
     // --- Final Cmaj7 arpej ---
-    { note: 'C4', freq: 261.63, time: 9600 },
-    { note: 'E4', freq: 329.63, time: 9660 },
-    { note: 'G4', freq: 392.00, time: 9720 },
-    { note: 'B4', freq: 493.88, time: 9780 },
+    { note: 'C4', freq: 261.63, time: 8800 },
+    { note: 'E4', freq: 329.63, time: 8860 },
+    { note: 'G4', freq: 392.00, time: 8920 },
+    { note: 'B4', freq: 493.88, time: 8980 },
 ];
 
 // ─── SAFARI AUDIO UNLOCK ──────────────────────────────────────
