@@ -144,6 +144,9 @@ function playViaOscillator(freq) {
 async function playNote(stepIndex, overrideNote = null, overrideFreq = null) {
     if (!soundEnabled) return;
     
+    // Mute transitions to Quiz (7) and Form (8) to create a dramatic silence gap
+    if (stepIndex >= 7 && !overrideNote) return;
+
     await unlockAudio();
 
     const noteName = overrideNote || AMBIENT_SCALE[stepIndex] || 'C5';
