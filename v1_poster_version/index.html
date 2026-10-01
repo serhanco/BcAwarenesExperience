@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Everything Starts With A Touch | Acıbadem</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            pink: '#ee6584', // Matched exactly from the PDF
+                            dark: '#111111'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                        body: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-brand-pink text-white font-sans h-screen w-screen overflow-hidden selection:bg-white selection:text-brand-pink">
+    
+    <!-- Main Layout Container -->
+    <div class="flex flex-col md:flex-row h-full w-full max-w-7xl mx-auto items-center justify-between p-6 md:p-12 gap-8 md:gap-16 relative">
+        
+        <!-- Left Column: The Piano/Breast Visual -->
+        <div class="relative w-full md:w-5/12 h-[45vh] md:h-[80vh] flex items-center justify-center cursor-pointer group z-10" onclick="nextStep()" title="Tap the piano">
+            
+            <div class="relative h-full w-full max-w-[350px] drop-shadow-2xl transition-transform duration-500 group-hover:scale-[1.02]">
+                
+                <!-- SVG Piano/Breast Silhouette -->
+                <svg class="absolute inset-0 w-full h-full piano-shape" viewBox="0 0 300 500" preserveAspectRatio="none">
+                    <!-- Custom path matching the PDF's breast/piano curve -->
+                    <path d="M160,0 L160,100 C140,200 0,250 0,380 C0,470 70,500 160,500 L300,500 L300,0 Z" fill="#000000" />
+                </svg>
+                
+                <!-- October Awareness Sticker -->
+                <div class="absolute bottom-16 left-2 md:left-6 w-20 h-20 md:w-24 md:h-24 bg-brand-pink rounded-full flex flex-col items-center justify-center shadow-lg border-[3px] border-pink-300 text-center p-2 z-20">
+                    <svg class="w-6 h-6 text-white mb-1 opacity-80" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                    </svg>
+                    <span class="text-[8px] md:text-[9px] font-bold leading-tight italic">October<br>Breast Cancer<br>Awareness Month</span>
+                </div>
+
+                <!-- Piano Keys Container -->
+                <div id="piano-keys" class="absolute top-0 right-0 h-full w-[25%] bg-white border-l-4 border-gray-900 flex flex-col z-10">
+                    <!-- Generated via JS -->
+                </div>
+            </div>
+            
+            <!-- Mobile Tap Hint -->
+            <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs font-bold uppercase tracking-widest animate-bounce md:hidden flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                Tap the piano
+            </div>
+        </div>
+
+        <!-- Right Column: Content Journey -->
+        <div class="relative w-full md:w-7/12 h-[55vh] md:h-full flex items-center">
+            
+            <!-- Step 0: PDF Campaign Copy -->
+            <div id="step-0" class="step active absolute inset-0 flex flex-col justify-center text-center md:text-left">
+                <h1 class="text-4xl md:text-[5.5rem] font-black uppercase leading-[0.95] tracking-tight mb-6 drop-shadow-md">
+                    Everything<br>Starts With<br>A Touch
+                </h1>
+                <p class="font-body text-base md:text-xl font-light mb-8 md:max-w-xl leading-relaxed opacity-90 mx-auto md:mx-0">
+                    Awareness alone is not enough, do not delay, take action today! Besides the breast self-exam, regular medical checkups are vital for early diagnosis of breast cancer. <strong class="font-bold">Early Detection Saves Lives!</strong>
+                </p>
+                <div class="hidden md:flex text-sm font-bold uppercase tracking-widest text-pink-200 animate-pulse items-center gap-3">
+                    <svg class="w-5 h-5 rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                    <span>Tap the piano keys to continue</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Technology -->
+            <div id="step-1" class="step absolute inset-0 flex flex-col justify-center text-center md:text-left">
+                <h2 class="text-4xl md:text-[4.5rem] font-black uppercase leading-[0.95] tracking-tight mb-6">
+                    The<br>Precision<br>Touch
+                </h2>
+                <p class="font-body text-base md:text-xl font-light mb-8 md:max-w-xl leading-relaxed opacity-90 mx-auto md:mx-0">
+                    When you feel the slightest doubt, our advanced <strong>3D Tomosynthesis Mammography</strong> and MRI technologies see everything with pinpoint accuracy.
+                </p>
+            </div>
+
+            <!-- Step 2: Expertise -->
+            <div id="step-2" class="step absolute inset-0 flex flex-col justify-center text-center md:text-left">
+                <h2 class="text-4xl md:text-[4.5rem] font-black uppercase leading-[0.95] tracking-tight mb-6">
+                    The<br>Master's<br>Touch
+                </h2>
+                <p class="font-body text-base md:text-xl font-light mb-8 md:max-w-xl leading-relaxed opacity-90 mx-auto md:mx-0">
+                    Acıbadem's multidisciplinary tumor boards, world-class oncologists, and specialized surgeons are by your side. You are in the safest hands.
+                </p>
+            </div>
+
+            <!-- Step 3: Form -->
+            <div id="step-3" class="step absolute inset-0 flex flex-col justify-center w-full">
+                <div class="bg-white text-gray-800 p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-md mx-auto md:mx-0">
+                    <h2 class="text-2xl md:text-3xl font-black uppercase mb-2 text-brand-pink">Take Action</h2>
+                    <p class="font-body text-sm text-gray-500 mb-6">Request a free consultation from Acıbadem's Breast Health Center today.</p>
+                    
+                    <form id="leadForm" class="flex flex-col gap-4 font-body" onsubmit="submitForm(event)">
+                        <input type="text" placeholder="Full Name" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-brand-pink focus:ring-1 focus:ring-brand-pink transition-colors">
+                        <input type="email" placeholder="Email Address" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-brand-pink focus:ring-1 focus:ring-brand-pink transition-colors">
+                        <input type="tel" placeholder="Phone Number" required class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:border-brand-pink focus:ring-1 focus:ring-brand-pink transition-colors">
+                        <button type="submit" class="mt-2 w-full py-4 bg-brand-pink text-white font-bold uppercase tracking-wider rounded-lg hover:bg-pink-600 transition-colors shadow-lg active:scale-95 transform">
+                            Request Contact
+                        </button>
+                    </form>
+
+                    <!-- Success State -->
+                    <div id="successMessage" class="hidden text-center py-8">
+                        <div class="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">✓</div>
+                        <h3 class="text-2xl font-black text-gray-800 mb-2">Thank You</h3>
+                        <p class="font-body text-sm text-gray-600">Your request has been received. Our health advisors will contact you shortly.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Corporate Footer/Logo alignment -->
+    <div class="fixed bottom-4 md:bottom-8 right-6 md:right-12 text-right opacity-90 pointer-events-none z-50 text-white">
+        <h3 class="text-xl md:text-2xl font-light tracking-[0.2em] mb-1">ΛCIBΛDEM</h3>
+        <p class="text-[8px] md:text-[10px] tracking-widest font-body uppercase">A Class Healthcare Services</p>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

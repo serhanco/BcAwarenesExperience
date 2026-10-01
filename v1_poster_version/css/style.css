@@ -1,0 +1,55 @@
+/* Custom CSS for Piano interactions and Step transitions */
+
+.step {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out, visibility 0.6s;
+}
+
+.step.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.step.out {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-20px);
+}
+
+/* Piano Key Visuals */
+.piano-key {
+    flex: 1;
+    width: 100%;
+    background: #ffffff;
+    border-bottom: 1px solid #e0e0e0;
+    position: relative;
+    transition: background-color 0.1s;
+}
+
+.piano-key:active, .piano-key.active-key {
+    background: #ffecf0;
+}
+
+.black-key {
+    position: absolute;
+    top: -10%;
+    left: 0;
+    width: 60%;
+    height: 120%;
+    background: #111111;
+    z-index: 10;
+    border-radius: 0 0 2px 0;
+}
+
+/* Piano Shape Animation */
+.piano-shape {
+    transform-origin: center;
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.piano-shape.tapped {
+    transform: scale(0.97) translateX(-2px);
+}
