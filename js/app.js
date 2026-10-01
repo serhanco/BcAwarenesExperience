@@ -31,31 +31,37 @@ const AMBIENT_SCALE = [
 // ─── LA VIE EN ROSE FULL CHORUS (FINALE) ───────────────
 // "Quand il me prend dans ses bras, il me parle tout bas..."
 const LA_VIE_EN_ROSE_FINALE = [
+    // --- Quand il me prend dans ses bras ---
     { note: 392.00, time: 0 },    // Quand (G4)
     { note: 392.00, time: 300 },  // il (G4)
     { note: 329.63, time: 600 },  // me (E4)
     { note: 261.63, time: 900 },  // prend (C4)
-    { note: 220.00, time: 1200 }, // dans ses bras (A3)
+    { note: 220.00, time: 1200 }, // dans (A3)
+    { note: 220.00, time: 1500 }, // ses (A3)
+    { note: 220.00, time: 1800 }, // bras (A3)
 
-    { note: 220.00, time: 2200 }, // Il (A3)
-    { note: 220.00, time: 2500 }, // me (A3)
-    { note: 261.63, time: 2800 }, // parle (C4)
-    { note: 246.94, time: 3100 }, // tout (B3)
-    { note: 196.00, time: 3400 }, // bas (G3)
+    // --- Il me parle tout bas ---
+    { note: 220.00, time: 3000 }, // Il (A3)
+    { note: 220.00, time: 3300 }, // me (A3)
+    { note: 261.63, time: 3600 }, // par- (C4)
+    { note: 246.94, time: 3900 }, // -le (B3)
+    { note: 220.00, time: 4200 }, // tout (A3)
+    { note: 196.00, time: 4500 }, // bas (G3)
 
-    { note: 196.00, time: 4400 }, // Je (G3)
-    { note: 220.00, time: 4700 }, // vois (A3)
-    { note: 261.63, time: 5000 }, // la (C4)
-    { note: 329.63, time: 5300 }, // vie (E4)
-    { note: 293.66, time: 5600 }, // en (D4)
-    { note: 261.63, time: 5900 }, // ro- (C4)
-    { note: 293.66, time: 6200 }, // -se (D4)
+    // --- Je vois la vie en rose ---
+    { note: 196.00, time: 5700 }, // Je (G3)
+    { note: 220.00, time: 6000 }, // vois (A3)
+    { note: 261.63, time: 6300 }, // la (C4)
+    { note: 329.63, time: 6600 }, // vie (E4)
+    { note: 293.66, time: 6900 }, // en (D4)
+    { note: 261.63, time: 7200 }, // ro- (C4)
+    { note: 293.66, time: 7500 }, // -se (D4)
 
-    // Resolve with Cmaj7 chord arpeggio
-    { note: 261.63, time: 7000 }, // C4
-    { note: 329.63, time: 7050 }, // E4
-    { note: 392.00, time: 7100 }, // G4
-    { note: 493.88, time: 7150 }  // B4
+    // --- Final Resolution & Cmaj7 Chord ---
+    { note: 261.63, time: 8400 }, // C4
+    { note: 329.63, time: 8450 }, // E4
+    { note: 392.00, time: 8500 }, // G4
+    { note: 493.88, time: 8550 }  // B4
 ];
 
 // ─── AUDIO ───────────────────────────────────────────────────
