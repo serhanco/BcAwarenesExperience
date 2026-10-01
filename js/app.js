@@ -15,19 +15,21 @@ let quizScore = 0;
 let statsAnimated = false;
 
 // ─── La Vie En Rose — Opening melodic fragment ───────────────
-// Notes: C4 D4 E4 C4 E4 F4 G4 E4 G4 C5(final)
+// Notes: C4 D4 E4 C4 E4 F4 G4 A4 G4 (Je vois la vie en ro-se...)
 const MELODY = [
-    { freq: 261.63, name: 'C4' },  // step 0→1
-    { freq: 293.66, name: 'D4' },  // step 1→2
-    { freq: 329.63, name: 'E4' },  // step 2→3
-    { freq: 261.63, name: 'C4' },  // step 3→4
-    { freq: 329.63, name: 'E4' },  // step 4→5
-    { freq: 349.23, name: 'F4' },  // step 5→6
-    { freq: 392.00, name: 'G4' },  // step 6→7
-    { freq: 329.63, name: 'E4' },  // step 7→8
-    { freq: 392.00, name: 'G4' },  // step 8→9
-    { freq: 523.25, name: 'C5' },  // form submit (finale)
+    { freq: 261.63, name: 'C4' },  // 0→1: Je
+    { freq: 293.66, name: 'D4' },  // 1→2: vois
+    { freq: 329.63, name: 'E4' },  // 2→3: la
+    { freq: 261.63, name: 'C4' },  // 3→4: vie
+    { freq: 329.63, name: 'E4' },  // 4→5: en
+    { freq: 349.23, name: 'F4' },  // 5→6: ro-
+    { freq: 392.00, name: 'G4' },  // 6→7: -se
+    { freq: 440.00, name: 'A4' },  // 7→8: Il
+    { freq: 392.00, name: 'G4' }   // 8→9: me...
 ];
+
+// C Major 7 Chord for the final form submit (arpeggiated finale)
+const FINAL_CHORD = [261.63, 329.63, 392.00, 493.88]; // C4, E4, G4, B4
 
 // ─── AUDIO ───────────────────────────────────────────────────
 function initAudio() {
@@ -43,11 +45,11 @@ function initAudio() {
  * Plays a polyphonic piano-like note.
  * Previous notes are NOT cut — they decay naturally (sustain effect).
  */
-function playNote(noteIndex) {
+function playNote(noteIndex, overrideFreq = null) {
     if (!soundEnabled) return;
     if (!audioCtx) return;
 
-    const note = MELODY[noteIndex] || MELODY[MELODY.length - 1];
+    const note = overrideFreq ? { freq: overrideFreq, name: 'ChordNote' } : (MELODY[noteIndex] || MELODY[MELODY.length - 1]);
 
     // Master gain (shared output)
     const masterGain = audioCtx.createGain();
@@ -77,7 +79,7 @@ function playNote(noteIndex) {
     osc2.stop(audioCtx.currentTime + 1.0);
 
     // Light the corresponding piano key
-    lightKey(noteIndex);
+    if (noteIndex !== null) lightKey(noteIndex);
 }
 
 function toggleSound() {
@@ -302,7 +304,11 @@ function personaliseForm() {
 function submitForm(event) {
     event.preventDefault();
     initAudio();
-    playNote(9); // finale note C5
+    
+    // Play a beautiful C Major 7 arpeggiated chord for the finale
+    FINAL_CHORD.forEach((freq, idx) => {
+        setTimeout(() => playNote(null, freq), idx * 60);
+    });
 
     const form = event.target;
     const formEl = document.getElementById('leadForm');
