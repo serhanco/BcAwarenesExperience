@@ -18,29 +18,25 @@ let statsAnimated = false;
 let piano = null;
 let pianoLoaded = false;
 
-async function initPiano() {
+function initPiano() {
     if (piano || typeof Tone === 'undefined') return;
-    try {
-        await Tone.start();
-        piano = new Tone.Sampler({
-            urls: {
-                'C4': 'C4.mp3',
-                'E4': 'E4.mp3',
-                'G4': 'G4.mp3',
-                'A4': 'A4.mp3',
-                'C5': 'C5.mp3',
-            },
-            baseUrl: 'https://tonejs.github.io/audio/salamander/',
-            release: 2.0,
-            onload: () => {
-                pianoLoaded = true;
-                console.log('🎹 Salamander Grand Piano loaded!');
-            }
-        }).toDestination();
-    } catch(e) {
-        console.warn('Tone.js Sampler failed, falling back to oscillator.', e);
-        piano = null;
-    }
+    
+    // Create sampler immediately. It loads buffers even if context is suspended.
+    piano = new Tone.Sampler({
+        urls: {
+            'C4': 'C4.mp3',
+            'E4': 'E4.mp3',
+            'G4': 'G4.mp3',
+            'A4': 'A4.mp3',
+            'C5': 'C5.mp3',
+        },
+        baseUrl: 'https://tonejs.github.io/audio/salamander/',
+        release: 2.0,
+        onload: () => {
+            pianoLoaded = true;
+            console.log('🎹 Salamander Grand Piano loaded!');
+        }
+    }).toDestination();
 }
 
 // ─── AMBIENT SCALE FOR SLIDE CLICKS (C Major rising arpeggio) ─
@@ -56,7 +52,6 @@ const AMBIENT_SCALE_FREQ = [
 
 // ─── LA VIE EN ROSE — Correct Chorus Melody (C Major) ────────
 // "Quand il me prend dans ses bras / Il me parle tout bas / Je vois la vie en rose"
-// Research-verified syllable-by-syllable transcription (Zaz version, ♩≈80 BPM)
 const LA_VIE_EN_ROSE_NOTES = [
     // --- Quand il me prend dans ses bras ---
     { note: 'E4', freq: 329.63, time: 0 },       // Quand
@@ -94,18 +89,22 @@ const LA_VIE_EN_ROSE_NOTES = [
     { note: 'B4', freq: 493.88, time: 9780 },
 ];
 
-// ─── AUDIO INIT (oscillator fallback) ────────────────────────
-function initAudio() {
+// ─── SAFARI AUDIO UNLOCK ──────────────────────────────────────
+async function unlockAudio() {
     if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     }
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    initPiano(); // async, non-blocking
+    if (audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+    }
+    if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
+        await Tone.start();
+    }
 }
 
 // ─── PLAY VIA TONE.JS SAMPLER ─────────────────────────────────
 function playViaTone(noteName, duration = '2n') {
-    if (piano && pianoLoaded) {
+    if (piano && pianoLoaded && Tone.context.state === 'running') {
         try {
             piano.triggerAttackRelease(noteName, duration);
             return true;
@@ -116,7 +115,7 @@ function playViaTone(noteName, duration = '2n') {
 
 // ─── PLAY VIA OSCILLATOR (fallback) ───────────────────────────
 function playViaOscillator(freq) {
-    if (!audioCtx) return;
+    if (!audioCtx || audioCtx.state !== 'running') return;
     const masterGain = audioCtx.createGain();
     masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
     masterGain.gain.linearRampToValueAtTime(0.32, audioCtx.currentTime + 0.03);
@@ -143,8 +142,10 @@ function playViaOscillator(freq) {
 }
 
 // ─── UNIFIED playNote() ───────────────────────────────────────
-function playNote(stepIndex, overrideNote = null, overrideFreq = null) {
+async function playNote(stepIndex, overrideNote = null, overrideFreq = null) {
     if (!soundEnabled) return;
+    
+    await unlockAudio();
 
     const noteName = overrideNote || AMBIENT_SCALE[stepIndex] || 'C5';
     const freq = overrideFreq || AMBIENT_SCALE_FREQ[stepIndex] || 523.25;
@@ -154,6 +155,7 @@ function playNote(stepIndex, overrideNote = null, overrideFreq = null) {
     }
     if (stepIndex !== null) lightKey(stepIndex);
 }
+
 
 function toggleSound() {
     soundEnabled = !soundEnabled;
@@ -215,7 +217,6 @@ function nextStep() {
     if (currentStep >= TOTAL_STEPS - 1) return;
 
     // Init & play audio
-    initAudio();
     playNote(currentStep);
 
     // Piano press animation
@@ -375,9 +376,10 @@ function personaliseForm() {
 }
 
 // ─── FORM SUBMIT ──────────────────────────────────────────────
-function submitForm(event) {
+async function submitForm(event) {
     event.preventDefault();
-    initAudio();
+    await unlockAudio();
+
     
     // Play the iconic La Vie En Rose chorus in perfect tempo!
     LA_VIE_EN_ROSE_NOTES.forEach(item => {
@@ -452,4 +454,5 @@ document.head.appendChild(shakeStyle);
 window.addEventListener('DOMContentLoaded', () => {
     generateKeys();
     buildDots();
+    initPiano(); // Start loading samples in the background
 });
