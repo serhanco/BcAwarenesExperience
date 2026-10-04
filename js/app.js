@@ -7,7 +7,10 @@
 
 // ─── STATE ───────────────────────────────────────────────────
 let currentStep = 0;
-const TOTAL_STEPS = 10;
+const TOTAL_STEPS = 13;
+const STATS_STEP = 3;   // Early Detection Saves Lives (count-up stats)
+const QUIZ_STEP = 11;   // One Touch Away
+const FORM_STEP = 12;   // Take Action Today
 let soundEnabled = true;
 let audioCtx = null;
 let quizAnswers = { 1: null, 2: null, 3: null };
@@ -50,7 +53,7 @@ function initPiano() {
 // The user explicitly requested:
 // "10 slayt için La Vie En Rose'un en ama en bilindik kısmındaki notaları kullanalım"
 
-// Part 1: First 10 notes for the 10 slide clicks
+// Part 1: First 10 notes, one per slide click up to the Myth/Fact slide
 // Visual Notes: DO si la sol mi DO si (7) + la sol mi (3) = 10 notes
 const AMBIENT_SCALE = [
     'C5', // 1. Quand (DO)
@@ -144,8 +147,8 @@ function playViaOscillator(freq) {
 async function playNote(stepIndex, overrideNote = null, overrideFreq = null) {
     if (!soundEnabled) return;
     
-    // Mute transitions to Quiz (7) and Form (8) to create a dramatic silence gap
-    if (stepIndex >= 7 && !overrideNote) return;
+    // Mute transitions into the Quiz and the Form to create a dramatic silence gap
+    if (stepIndex >= QUIZ_STEP - 1 && !overrideNote) return;
 
     await unlockAudio();
 
@@ -211,8 +214,8 @@ function lightKey(noteIndex) {
 
 // ─── NAVIGATION ──────────────────────────────────────────────
 function nextStep() {
-    // Don't advance past form, and don't advance if quiz on slide 8 is incomplete
-    if (currentStep === 8 && !isQuizComplete()) {
+    // Don't advance past form, and don't advance if the quiz is incomplete
+    if (currentStep === QUIZ_STEP && !isQuizComplete()) {
         shakeQuiz();
         return;
     }
@@ -260,14 +263,14 @@ function nextStep() {
 
     updateDots();
 
-    // Trigger stats animation on slide 3
-    if (currentStep === 3 && !statsAnimated) {
+    // Trigger stats animation on the statistics slide
+    if (currentStep === STATS_STEP && !statsAnimated) {
         setTimeout(animateStats, 400);
         statsAnimated = true;
     }
 
-    // Set personalised form title from quiz (slide 9)
-    if (currentStep === 9) {
+    // Set personalised form title from quiz
+    if (currentStep === FORM_STEP) {
         personaliseForm();
     }
 }
@@ -383,6 +386,14 @@ function personaliseForm() {
     ];
     if (titles[quizScore]) document.getElementById('formTitle').textContent = titles[quizScore];
     if (subtitles[quizScore]) document.getElementById('formSubtitle').textContent = subtitles[quizScore];
+}
+
+// ─── MYTH OR FACT ─────────────────────────────────────────────
+function flipMyth(card) {
+    const revealed = card.classList.toggle('revealed');
+    card.setAttribute('aria-pressed', revealed);
+    card.querySelector('.myth-tag').textContent = revealed ? 'Fact' : 'Myth';
+    if (revealed) playNote(null, 'C5', 523.25);
 }
 
 // ─── FORM SUBMIT ──────────────────────────────────────────────

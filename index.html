@@ -16,7 +16,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/style.css?v=7">
 
     <script>
         tailwind.config = {
@@ -127,7 +127,7 @@
     <!-- RIGHT: Content Slides -->
     <div class="relative w-full md:w-7/12 h-[72dvh] md:h-full overflow-hidden">
 
-        <!-- ===== SLIDE 0: Hook ===== -->
+        <!-- ===== SLIDE: Hook ===== -->
         <div id="step-0" class="step active flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left">
 
             <h1 class="text-4xl sm:text-5xl md:text-[5.5rem] font-black uppercase leading-[0.9] tracking-tight mb-6 drop-shadow-lg">
@@ -140,9 +140,9 @@
             <p class="mt-6 text-xs font-bold uppercase tracking-[0.25em] text-pink-200 md:hidden animate-pulse">Tap the piano to begin</p>
         </div>
 
-        <!-- ===== SLIDE 1: Your First Touch (Self-Exam) ===== -->
+        <!-- ===== SLIDE: Your First Touch (Self-Exam) ===== -->
         <div id="step-1" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left">
-            <p class="step-number">01 / 09</p>
+            <p class="step-number">01 / 12</p>
             <h2 class="step-title">Your<br>First<br>Touch</h2>
             <p class="font-body text-sm md:text-base font-light leading-relaxed opacity-90 max-w-md mx-auto md:mx-0 mb-4">
                 For women over 20, a monthly breast self-exam is your most powerful first step. Know your body — know when something changes.
@@ -154,9 +154,9 @@
             </ul>
         </div>
 
-        <!-- ===== SLIDE 2: Warning Signs ===== -->
+        <!-- ===== SLIDE: Warning Signs ===== -->
         <div id="step-2" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left">
-            <p class="step-number">02 / 09</p>
+            <p class="step-number">02 / 12</p>
             <h2 class="step-title">Know<br>The<br>Signs</h2>
             <p class="font-body text-xs md:text-sm font-light opacity-80 mb-3 max-w-sm mx-auto md:mx-0">If you notice any of these, don't wait — contact a specialist immediately:</p>
             <ul class="font-body text-xs md:text-sm space-y-1.5 opacity-90 text-left max-w-sm mx-auto md:mx-0">
@@ -168,9 +168,9 @@
             </ul>
         </div>
 
-        <!-- ===== SLIDE 3: Statistics ===== -->
+        <!-- ===== SLIDE: Statistics ===== -->
         <div id="step-3" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left">
-            <p class="step-number">03 / 09</p>
+            <p class="step-number">03 / 12</p>
             <h2 class="step-title text-3xl md:text-5xl">Early<br>Detection<br>Saves Lives</h2>
             <div class="grid grid-cols-3 gap-3 mt-4 max-w-sm md:max-w-lg mx-auto md:mx-0">
                 <div class="stat-card">
@@ -190,23 +190,49 @@
             <p class="font-body text-xs md:text-sm font-light mt-4 opacity-80 max-w-sm mx-auto md:mx-0">Regular screening is not optional — it's essential. Don't delay your mammogram.</p>
         </div>
 
-        <!-- ===== SLIDE 4: Technology ===== -->
-        <div id="step-4" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left">
-            <p class="step-number">04 / 09</p>
+        <!-- ===== SLIDE: Screening Calendar ===== -->
+        <div id="step-4" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left pb-10 md:pb-0">
+            <p class="step-number">04 / 12</p>
+            <h2 class="step-title">The<br>Timely<br>Touch</h2>
+            <p class="font-body text-xs md:text-sm font-light opacity-80 mb-3 max-w-sm mx-auto md:mx-0">Find your age, know your next step:</p>
+            <div class="space-y-2 text-left max-w-sm md:max-w-md mx-auto md:mx-0">
+                <div class="age-row">
+                    <span class="age-badge">20+</span>
+                    <div><strong class="font-semibold">Monthly self-exam</strong><br><span class="opacity-70">Plus a clinical breast exam by a doctor every 1–3 years</span></div>
+                </div>
+                <div class="age-row">
+                    <span class="age-badge">40+</span>
+                    <div><strong class="font-semibold">Annual mammogram</strong><br><span class="opacity-70">Ultrasound may be added for dense breast tissue</span></div>
+                </div>
+                <div class="age-row age-row-alert">
+                    <span class="age-badge">High<br>risk</span>
+                    <div><strong class="font-semibold">Start earlier — often from 25–30</strong><br><span class="opacity-70">Family history or BRCA gene? Genetic counselling and high-risk screening, often with annual MRI</span></div>
+                </div>
+            </div>
+            <p class="font-body text-xs font-light mt-3 opacity-80 max-w-sm mx-auto md:mx-0">Screening finds cancer before you can feel it — when it is easiest to treat.</p>
+        </div>
+
+        <!-- ===== SLIDE: Technology ===== -->
+        <div id="step-5" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left pb-10 md:pb-0">
+            <p class="step-number">05 / 12</p>
             <h2 class="step-title">The<br>Precision<br>Touch</h2>
-            <p class="font-body text-xs md:text-sm font-light opacity-80 mb-3 max-w-sm mx-auto md:mx-0">When you feel the slightest doubt, Acıbadem's advanced technology sees everything:</p>
-            <ul class="font-body text-xs md:text-sm space-y-2 text-left max-w-sm mx-auto md:mx-0">
+            <p class="font-body text-xs md:text-sm font-light opacity-80 mb-3 max-w-sm mx-auto md:mx-0">At the slightest doubt, our technology sees what the hand cannot:</p>
+            <ul class="font-body text-xs md:text-sm space-y-0 md:space-y-2 text-left max-w-sm mx-auto md:mx-0">
                 <li class="tech-item">
                     <span class="tech-dot"></span>
-                    <div><strong class="font-semibold">3D Tomosynthesis Mammography</strong><br><span class="opacity-70">Detects tumors invisible on standard 2D imaging</span></div>
+                    <div><strong class="font-semibold">3D Tomosynthesis Mammography</strong><br><span class="opacity-70">Slice-by-slice imaging that reveals what 2D can hide</span></div>
                 </li>
                 <li class="tech-item">
                     <span class="tech-dot"></span>
-                    <div><strong class="font-semibold">Breast MRI with Contrast</strong><br><span class="opacity-70">Ideal for dense breast tissue &amp; high-risk patients</span></div>
+                    <div><strong class="font-semibold">4D Ultrasound &amp; Breast MRI</strong><br><span class="opacity-70">Clarity for dense breast tissue and high-risk women</span></div>
                 </li>
                 <li class="tech-item">
                     <span class="tech-dot"></span>
-                    <div><strong class="font-semibold">Image-Guided Biopsy</strong><br><span class="opacity-70">Pinpoint accuracy with minimal invasion</span></div>
+                    <div><strong class="font-semibold">Image-Guided &amp; Vacuum-Assisted Biopsy</strong><br><span class="opacity-70">Pinpoint sampling, minimally invasive</span></div>
+                </li>
+                <li class="tech-item">
+                    <span class="tech-dot"></span>
+                    <div><strong class="font-semibold">Genetic &amp; Genomic Testing</strong><br><span class="opacity-70">BRCA1/2, Oncotype DX &amp; MammaPrint</span></div>
                 </li>
                 <li class="tech-item">
                     <span class="tech-dot"></span>
@@ -215,9 +241,39 @@
             </ul>
         </div>
 
-        <!-- ===== SLIDE 5: Doctors ===== -->
-        <div id="step-5" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left">
-            <p class="step-number">05 / 09</p>
+        <!-- ===== SLIDE: Diagnosis Journey ===== -->
+        <div id="step-6" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left pb-10 md:pb-0">
+            <p class="step-number">06 / 12</p>
+            <h2 class="step-title text-3xl md:text-5xl">From<br>Doubt To<br>Diagnosis</h2>
+            <p class="font-body text-xs md:text-sm font-light opacity-80 mb-2 max-w-sm mx-auto md:mx-0">Noticed a change? From finding to answer — in days, not months:</p>
+            <ol class="diag-timeline font-body text-xs md:text-sm text-left max-w-sm md:max-w-md mx-auto md:mx-0">
+                <li class="diag-step">
+                    <span class="diag-num">1</span>
+                    <div><strong class="font-semibold">Clinical Exam</strong> <span class="opacity-70">— a breast specialist listens and examines</span></div>
+                </li>
+                <li class="diag-step">
+                    <span class="diag-num">2</span>
+                    <div><strong class="font-semibold">One-Stop Imaging</strong> <span class="opacity-70">— 3D mammography &amp; ultrasound, MRI if needed</span></div>
+                </li>
+                <li class="diag-step">
+                    <span class="diag-num">3</span>
+                    <div><strong class="font-semibold">Biopsy, Same Visit</strong> <span class="opacity-70">— image-guided, under local anaesthesia</span></div>
+                </li>
+                <li class="diag-step">
+                    <span class="diag-num">4</span>
+                    <div><strong class="font-semibold">Pathology</strong> <span class="opacity-70">— receptors, HER2 &amp; Ki-67 define the tumour's biology</span></div>
+                </li>
+                <li class="diag-step">
+                    <span class="diag-num">5</span>
+                    <div><strong class="font-semibold">Your Personal Plan</strong> <span class="opacity-70">— the breast council decides together, with you</span></div>
+                </li>
+            </ol>
+            <p class="font-body text-xs font-light mt-3 opacity-90 max-w-sm mx-auto md:mx-0"><strong class="font-semibold">Most breast lumps are not cancer</strong> — but only a diagnosis can tell. Don't guess. Get checked.</p>
+        </div>
+
+        <!-- ===== SLIDE: Doctors ===== -->
+        <div id="step-7" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left pb-10 md:pb-0">
+            <p class="step-number">07 / 12</p>
             <h2 class="step-title">The<br>Master's<br>Touch</h2>
             <p class="font-body text-xs md:text-sm font-light opacity-80 mb-3 max-w-sm mx-auto md:mx-0">World-class specialists dedicated to your breast health:</p>
             <div class="grid grid-cols-2 gap-2 max-w-sm md:max-w-lg mx-auto md:mx-0">
@@ -230,44 +286,53 @@
                     <p class="doctor-spec">Breast Surgery</p>
                 </div>
                 <div class="doctor-card">
-                    <p class="doctor-name">Prof. Hilal Ünal, MD</p>
-                    <p class="doctor-spec">Breast Clinic</p>
+                    <p class="doctor-name">Prof. Aykut Soyder, MD</p>
+                    <p class="doctor-spec">Breast Surgery</p>
+                </div>
+                <div class="doctor-card">
+                    <p class="doctor-name">Assoc. Prof. A. Enes Arıkan, MD</p>
+                    <p class="doctor-spec">Breast Surgery</p>
                 </div>
                 <div class="doctor-card">
                     <p class="doctor-name">Prof. Bülent Saçak, MD</p>
                     <p class="doctor-spec">Plastic &amp; Reconstructive Surgery</p>
                 </div>
+                <div class="doctor-card">
+                    <p class="doctor-name">Assoc. Prof. Erdem Güven, MD</p>
+                    <p class="doctor-spec">Plastic &amp; Reconstructive Surgery</p>
+                </div>
             </div>
-            <p class="font-body text-xs font-light mt-3 opacity-70 max-w-sm mx-auto md:mx-0">A multidisciplinary tumor board reviews every case — together.</p>
+            <p class="font-body text-xs font-light mt-3 opacity-70 max-w-sm mx-auto md:mx-0">Breast surgeons, plastic surgeons, oncologists, radiologists, pathologists and geneticists decide together.</p>
         </div>
 
-        <!-- ===== SLIDE 6: Treatment ===== -->
-        <div id="step-6" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left">
-            <p class="step-number">06 / 09</p>
+        <!-- ===== SLIDE: Treatment ===== -->
+        <div id="step-8" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left pb-10 md:pb-0">
+            <p class="step-number">08 / 12</p>
             <h2 class="step-title">World-Class<br>Treatment</h2>
             <ul class="font-body text-xs md:text-sm space-y-2 text-left max-w-sm mx-auto md:mx-0 mt-2">
                 <li class="tech-item">
                     <span class="tech-dot"></span>
-                    <div><strong class="font-semibold">Breast-Conserving Surgery</strong><br><span class="opacity-70">Removing only the tumor — preserving your body</span></div>
+                    <div><strong class="font-semibold">Breast-Conserving &amp; Oncoplastic Surgery</strong><br><span class="opacity-70">Removing the tumour, preserving your body's shape</span></div>
                 </li>
                 <li class="tech-item">
                     <span class="tech-dot"></span>
-                    <div><strong class="font-semibold">Nipple-Sparing Mastectomy</strong><br><span class="opacity-70">With immediate reconstruction when needed</span></div>
+                    <div><strong class="font-semibold">Nipple-Sparing Mastectomy</strong><br><span class="opacity-70">With immediate reconstruction: implant or your own tissue (DIEP flap)</span></div>
                 </li>
                 <li class="tech-item">
                     <span class="tech-dot"></span>
-                    <div><strong class="font-semibold">Oncoplastic Surgery</strong><br><span class="opacity-70">Cancer surgery combined with aesthetic outcomes</span></div>
+                    <div><strong class="font-semibold">Single-Dose Intraoperative Radiotherapy</strong><br><span class="opacity-70">Radiotherapy delivered during surgery, in one dose, for suitable cases</span></div>
                 </li>
                 <li class="tech-item">
                     <span class="tech-dot"></span>
-                    <div><strong class="font-semibold">Multidisciplinary Tumor Board</strong><br><span class="opacity-70">10+ specialists review every single case together</span></div>
+                    <div><strong class="font-semibold">Sentinel-Node Precision</strong><br><span class="opacity-70">No more armpit surgery than needed</span></div>
                 </li>
             </ul>
+            <p class="font-body text-xs font-light mt-3 opacity-70 max-w-sm mx-auto md:mx-0">Reconstructive surgeons are in the room when removal is planned.</p>
         </div>
 
-        <!-- ===== SLIDE 7: Hospitals & Journey ===== -->
-        <div id="step-7" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left">
-            <p class="step-number">07 / 09</p>
+        <!-- ===== SLIDE: Hospitals & Journey ===== -->
+        <div id="step-9" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left pb-10 md:pb-0">
+            <p class="step-number">09 / 12</p>
             <h2 class="step-title">Your<br>Healing<br>Journey</h2>
             <div class="grid grid-cols-2 gap-2 mt-3 max-w-sm mx-auto md:mx-0">
                 <div class="journey-stat">
@@ -279,23 +344,52 @@
                     <span class="journey-label">Countries We Serve</span>
                 </div>
                 <div class="journey-stat">
-                    <span class="journey-num">48</span>
-                    <span class="journey-label">Languages Supported</span>
+                    <span class="journey-num">45+</span>
+                    <span class="journey-label">Hospitals &amp; Clinics</span>
                 </div>
                 <div class="journey-stat">
-                    <span class="journey-num">24/7</span>
-                    <span class="journey-label">Multilingual Support</span>
+                    <span class="journey-num">20+</span>
+                    <span class="journey-label">Interpreter Languages</span>
                 </div>
             </div>
             <p class="font-body text-xs font-light mt-3 opacity-80 max-w-sm mx-auto md:mx-0">
                 Hospitals in Istanbul: <span class="font-medium">Maslak · Altunizade · Ataşehir · Atakent · Kadıköy · Kartal</span> + İzmir Kent
             </p>
-            <p class="font-body text-xs font-light mt-1 opacity-70 max-w-sm mx-auto md:mx-0">Full travel support: transfer, accommodation &amp; interpreter included.</p>
+            <p class="font-body text-xs font-light mt-1 opacity-70 max-w-sm mx-auto md:mx-0">Free record review and a written plan with cost estimate before you travel. A named coordinator, transfers &amp; interpreters included.</p>
         </div>
 
-        <!-- ===== SLIDE 8: Mini Quiz ===== -->
-        <div id="step-8" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left pb-12 md:pb-0">
-            <p class="step-number">08 / 09</p>
+        <!-- ===== SLIDE: Myth vs Fact ===== -->
+        <div id="step-10" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left pb-10 md:pb-0">
+            <p class="step-number">10 / 12</p>
+            <h2 class="step-title">Myth<br>Or<br>Fact?</h2>
+            <p class="font-body text-xs md:text-sm font-light opacity-80 mb-3 max-w-sm mx-auto md:mx-0">Tap each card to reveal the truth:</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-w-sm md:max-w-lg mx-auto md:mx-0 w-full">
+                <button type="button" class="myth-card" onclick="flipMyth(this)" aria-pressed="false">
+                    <span class="myth-tag">Myth</span>
+                    <span class="myth-front">"No one in my family had it, so I'm safe."</span>
+                    <span class="myth-back">Most women diagnosed have no family history. Every woman should be screened.</span>
+                </button>
+                <button type="button" class="myth-card" onclick="flipMyth(this)" aria-pressed="false">
+                    <span class="myth-tag">Myth</span>
+                    <span class="myth-front">"It doesn't hurt, so it's nothing."</span>
+                    <span class="myth-back">Many breast cancers cause no pain. Any new lump deserves a check.</span>
+                </button>
+                <button type="button" class="myth-card" onclick="flipMyth(this)" aria-pressed="false">
+                    <span class="myth-tag">Myth</span>
+                    <span class="myth-front">"Mammograms are dangerous."</span>
+                    <span class="myth-back">The radiation dose is very low. Finding cancer early far outweighs it.</span>
+                </button>
+                <button type="button" class="myth-card" onclick="flipMyth(this)" aria-pressed="false">
+                    <span class="myth-tag">Myth</span>
+                    <span class="myth-front">"I'm too young to worry."</span>
+                    <span class="myth-back">Risk rises with age, but it can happen at any age. Know your normal from your 20s.</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ===== SLIDE: Mini Quiz ===== -->
+        <div id="step-11" class="step flex flex-col justify-center h-full px-6 md:px-12 text-center md:text-left pb-12 md:pb-0">
+            <p class="step-number">11 / 12</p>
             <h2 class="step-title text-3xl md:text-5xl mb-3">One<br>Touch<br>Away</h2>
             <p class="font-body text-xs md:text-sm font-light opacity-80 mb-3">Three quick questions for you:</p>
 
@@ -333,11 +427,11 @@
             </div>
         </div>
 
-        <!-- ===== SLIDE 9: Lead Form ===== -->
-        <div id="step-9" class="step flex flex-col justify-center h-full px-4 md:px-12 py-4 pb-12 md:pb-4 overflow-y-auto">
+        <!-- ===== SLIDE: Lead Form ===== -->
+        <div id="step-12" class="step step-scroll flex flex-col justify-center h-full px-4 md:px-12 py-4 pb-12 md:pb-4 overflow-y-auto">
             <div class="bg-white text-gray-800 rounded-2xl shadow-2xl p-5 md:p-7 w-full max-w-md mx-auto md:mx-0">
                 <h2 class="text-xl md:text-2xl font-black uppercase text-brand-pink mb-1" id="formTitle">Take Action Today</h2>
-                <p id="formSubtitle" class="font-body text-xs text-gray-500 mb-4">Request a free consultation from Acıbadem's Breast Health Center.</p>
+                <p id="formSubtitle" class="font-body text-xs text-gray-500 mb-4">Request a free consultation and record review from Acıbadem's Breast Health Center.</p>
 
                 <form id="leadForm" class="flex flex-col gap-2.5 font-body" onsubmit="submitForm(event)">
                     <div class="grid grid-cols-2 gap-2">
@@ -405,6 +499,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-<script src="js/app.js?v=10"></script>
+<script src="js/app.js?v=11"></script>
 </body>
 </html>
