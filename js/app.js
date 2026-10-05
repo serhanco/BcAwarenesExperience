@@ -305,31 +305,57 @@ function emitSoundWave(keyIdx, freq) {
 const NOTE_SYMBOLS = ['#note-eighth', '#note-beamed'];
 const NOTE_COLORS = ['#ffffff', '#ffd6e7'];
 
+// Animated by JS through SVG attributes (not CSS keyframes) so it plays the
+// same in every browser, Safari included. With "reduce motion" switched on the
+// notes still appear, but only rise gently and fade, without swaying or spinning.
 function emitMusicNotes(keyIdx) {
     const group = document.getElementById('svg-notes');
-    if (!group || reduceMotion.matches) return;
+    if (!group) return;
     const svgNS = 'http://www.w3.org/2000/svg';
     const keyH = KEYS_HEIGHT / 32;
     const y0 = keyIdx * keyH + keyH / 2;
+    const calm = reduceMotion.matches;
 
     for (let i = 0; i < 3; i++) {
-        const size = 16 + Math.random() * 8;
-        // Start on the keys and drift left over the dark body as they rise
-        const x = KEYS_X + 6 + Math.random() * 30;
-        const y = y0 + (Math.random() - 0.5) * 16;
+        const size = 30 + Math.random() * 12;
         const note = document.createElementNS(svgNS, 'use');
         note.setAttribute('href', NOTE_SYMBOLS[(i + keyIdx) % NOTE_SYMBOLS.length]);
-        note.setAttribute('x', x - size / 2);
-        note.setAttribute('y', y - size / 2);
+        note.setAttribute('x', -size / 2);
+        note.setAttribute('y', -size / 2);
         note.setAttribute('width', size);
         note.setAttribute('height', size);
         note.setAttribute('fill', NOTE_COLORS[i % NOTE_COLORS.length]);
-        note.setAttribute('class', 'music-note');
-        note.style.setProperty('--dx', `${-(30 + Math.random() * 45)}px`);
-        note.style.setProperty('--sway', `${6 + Math.random() * 6}px`);
-        note.style.animationDelay = `${i * 0.12}s`;
+        note.setAttribute('opacity', 0);
         group.appendChild(note);
-        setTimeout(() => note.remove(), 1900 + i * 120);
+
+        // Start on the keys, drift left over the dark body while rising
+        const x = KEYS_X + 4 + Math.random() * 26;
+        const y = y0 + (Math.random() - 0.5) * 20;
+        const dx = calm ? 0 : -(60 + Math.random() * 70);
+        // Keep them inside the picture when the key is near the top of the piano
+        const rise = Math.min(calm ? 30 : 80 + Math.random() * 30, y - 28);
+        const sway = calm ? 0 : 8 + Math.random() * 8;
+        const spin = calm ? 0 : 12 + Math.random() * 8;
+        const phase = Math.random() * Math.PI;
+        const delay = i * 140;
+        const DURATION = 1800;
+        const start = performance.now() + delay;
+
+        function frame(now) {
+            const t = (now - start) / DURATION;
+            if (t < 0) { requestAnimationFrame(frame); return; }
+            if (t >= 1) { note.remove(); return; }
+            const ease = 1 - Math.pow(1 - t, 2);
+            const wobble = Math.sin(t * Math.PI * 3 + phase);
+            const px = x + dx * ease + sway * wobble;
+            const py = y - rise * ease;
+            const pop = t < 0.15 ? 0.4 + (t / 0.15) * 0.75 : 1.15 - Math.min(0.25, (t - 0.15) * 0.6);
+            const opacity = t < 0.12 ? t / 0.12 : t > 0.6 ? 1 - (t - 0.6) / 0.4 : 1;
+            note.setAttribute('transform', `translate(${px.toFixed(1)} ${py.toFixed(1)}) rotate(${(spin * wobble).toFixed(1)}) scale(${pop.toFixed(3)})`);
+            note.setAttribute('opacity', opacity.toFixed(2));
+            requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
     }
 }
 
@@ -347,8 +373,8 @@ function nextStep() {
 
     // Sound waves leave the struck key and travel across the piano body
     emitSoundWave(keyIndexFor(currentStep), AMBIENT_SCALE_FREQ[currentStep] || 440);
-    // Music notes dance out of the key, only when a note actually sounds
-    if (soundEnabled && currentStep < QUIZ_STEP - 1) emitMusicNotes(keyIndexFor(currentStep));
+    // Music notes dance out of the key, on every melody step
+    if (currentStep < QUIZ_STEP - 1) emitMusicNotes(keyIndexFor(currentStep));
 
     // Hide tap hint after first interaction
     if (currentStep === 0) {
