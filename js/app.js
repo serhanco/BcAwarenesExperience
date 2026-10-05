@@ -301,6 +301,38 @@ function emitSoundWave(keyIdx, freq) {
     requestAnimationFrame(frame);
 }
 
+// ─── DANCING MUSIC NOTES ─────────────────────────────────────
+const NOTE_SYMBOLS = ['#note-eighth', '#note-beamed'];
+const NOTE_COLORS = ['#ffffff', '#ffd6e7'];
+
+function emitMusicNotes(keyIdx) {
+    const group = document.getElementById('svg-notes');
+    if (!group || reduceMotion.matches) return;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const keyH = KEYS_HEIGHT / 32;
+    const y0 = keyIdx * keyH + keyH / 2;
+
+    for (let i = 0; i < 3; i++) {
+        const size = 16 + Math.random() * 8;
+        // Start on the keys and drift left over the dark body as they rise
+        const x = KEYS_X + 6 + Math.random() * 30;
+        const y = y0 + (Math.random() - 0.5) * 16;
+        const note = document.createElementNS(svgNS, 'use');
+        note.setAttribute('href', NOTE_SYMBOLS[(i + keyIdx) % NOTE_SYMBOLS.length]);
+        note.setAttribute('x', x - size / 2);
+        note.setAttribute('y', y - size / 2);
+        note.setAttribute('width', size);
+        note.setAttribute('height', size);
+        note.setAttribute('fill', NOTE_COLORS[i % NOTE_COLORS.length]);
+        note.setAttribute('class', 'music-note');
+        note.style.setProperty('--dx', `${-(30 + Math.random() * 45)}px`);
+        note.style.setProperty('--sway', `${6 + Math.random() * 6}px`);
+        note.style.animationDelay = `${i * 0.12}s`;
+        group.appendChild(note);
+        setTimeout(() => note.remove(), 1900 + i * 120);
+    }
+}
+
 // ─── NAVIGATION ──────────────────────────────────────────────
 function nextStep() {
     // Don't advance past form, and don't advance if the quiz is incomplete
@@ -315,6 +347,8 @@ function nextStep() {
 
     // Sound waves leave the struck key and travel across the piano body
     emitSoundWave(keyIndexFor(currentStep), AMBIENT_SCALE_FREQ[currentStep] || 440);
+    // Music notes dance out of the key, only when a note actually sounds
+    if (soundEnabled && currentStep < QUIZ_STEP - 1) emitMusicNotes(keyIndexFor(currentStep));
 
     // Hide tap hint after first interaction
     if (currentStep === 0) {

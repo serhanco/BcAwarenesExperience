@@ -119,6 +119,22 @@ h1,h2,h3 { font-family: 'Montserrat', sans-serif; }
 .sound-wave-glow { stroke: rgba(255, 214, 231, 0.35); stroke-width: 6px; }
 .sound-wave-core { stroke: #fff; stroke-width: 1.6px; }
 
+/* Music notes: pop out of the key, sway and spin a little while rising, then fade */
+.music-note {
+    transform-box: fill-box;
+    transform-origin: center;
+    opacity: 0;
+    animation: note-dance 1.7s cubic-bezier(0.33, 1, 0.68, 1) forwards;
+}
+@keyframes note-dance {
+    0%   { opacity: 0;   transform: translate(0, 0) scale(0.3) rotate(0deg); }
+    14%  { opacity: 1;   transform: translate(calc(var(--dx) * 0.2), -6px) scale(1.15) rotate(-14deg); }
+    34%  {               transform: translate(calc(var(--dx) * 0.45 + var(--sway)), -20px) scale(1) rotate(12deg); }
+    54%  {               transform: translate(calc(var(--dx) * 0.65 - var(--sway)), -34px) scale(1) rotate(-10deg); }
+    74%  { opacity: 0.85; transform: translate(calc(var(--dx) * 0.85 + var(--sway)), -48px) scale(0.95) rotate(8deg); }
+    100% { opacity: 0;   transform: translate(var(--dx), -64px) scale(0.85) rotate(-4deg); }
+}
+
 /* Piano Keys (SVG rects inside #pianoSvg) */
 .piano-key {
     fill: #fff;
