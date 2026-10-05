@@ -96,22 +96,28 @@ h1,h2,h3 { font-family: 'Montserrat', sans-serif; }
     transform-origin: center;
     transition: transform 0.15s ease;
 }
-.svg-ripple-anim {
-    transform-origin: 150px 375px; /* Center of the lower curve */
-    animation: svg-ripple 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards;
+/* Sound waves: rings and a vibrating string that leave the struck key and
+   travel across the piano body (drawn by JS inside #svg-ripples). */
+.sound-ring {
+    fill: none;
+    stroke: #ffd6e7;
+    vector-effect: non-scaling-stroke;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: sound-ring 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-@keyframes svg-ripple {
-    0% {
-        transform: scale(0.1);
-        opacity: 0.9;
-        stroke-width: 15px;
-    }
-    100% {
-        transform: scale(25);
-        opacity: 0;
-        stroke-width: 0.5px;
-    }
+@keyframes sound-ring {
+    0%   { transform: scale(0.2); opacity: 0.85; stroke-width: 3px; }
+    100% { transform: scale(9);   opacity: 0;    stroke-width: 0.5px; }
 }
+.sound-wave {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+}
+.sound-wave-glow { stroke: rgba(255, 214, 231, 0.35); stroke-width: 6px; }
+.sound-wave-core { stroke: #fff; stroke-width: 1.6px; }
 
 /* Piano Keys (SVG rects inside #pianoSvg) */
 .piano-key {
@@ -127,6 +133,11 @@ h1,h2,h3 { font-family: 'Montserrat', sans-serif; }
     stroke-width: 0.5;
 }
 .piano-key-rail { fill: #333; }
+
+/* Restart button: only shown once the visitor has moved past the first slide */
+.restart-btn { opacity: 0; pointer-events: none; transform: rotate(-90deg); transition: opacity 0.3s, transform 0.4s, background-color 0.2s; }
+.restart-btn.visible { opacity: 1; pointer-events: auto; transform: none; }
+.restart-btn.visible:active svg { transform: rotate(-120deg); transition: transform 0.3s; }
 
 /* Tap pulse ring */
 .tap-pulse-ring {

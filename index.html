@@ -16,7 +16,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;800;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=8">
+    <link rel="stylesheet" href="css/style.css?v=9">
 
     <script>
         tailwind.config = {
@@ -35,6 +35,14 @@
     </script>
 </head>
 <body class="bg-brand-pink text-white font-sans w-screen h-[100dvh] overflow-hidden">
+
+<!-- ===================== RESTART ===================== -->
+<button id="restartBtn" onclick="restartExperience()" title="Start over" aria-label="Start the experience over" tabindex="-1"
+    class="restart-btn fixed top-4 right-16 z-50 w-10 h-10 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M4.6 15a8 8 0 1 0 1.3-8.7L4 9"/>
+    </svg>
+</button>
 
 <!-- ===================== SOUND TOGGLE ===================== -->
 <button id="soundToggle" onclick="toggleSound()" title="Toggle Sound" aria-label="Toggle sound"
@@ -503,6 +511,6 @@
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-<script src="js/app.js?v=12"></script>
+<script src="js/app.js?v=13"></script>
 </body>
 </html>

@@ -216,6 +216,12 @@ function generateKeys() {
     container.appendChild(rail);
 }
 
+// Map melody notes to approximate key positions on our 32-key strip
+const KEY_MAP = [4, 6, 8, 4, 8, 9, 11, 8, 11, 18];
+function keyIndexFor(step) {
+    return KEY_MAP[step] ?? 16;
+}
+
 /**
  * Highlights the piano key that corresponds to the current melody note.
  * Each note maps to an approximate key position.
@@ -224,13 +230,75 @@ function lightKey(noteIndex) {
     const keys = document.querySelectorAll('.piano-key');
     keys.forEach(k => k.classList.remove('lit'));
 
-    // Map melody notes to approximate key positions on our 32-key strip
-    const keyMap = [4, 6, 8, 4, 8, 9, 11, 8, 11, 18];
-    const idx = keyMap[noteIndex] || 0;
+    const idx = keyIndexFor(noteIndex);
     if (keys[idx]) {
         keys[idx].classList.add('lit');
         setTimeout(() => keys[idx].classList.remove('lit'), 600);
     }
+}
+
+// ─── SOUND WAVE VISUAL ───────────────────────────────────────
+// Rings pulse out from the struck key while a string-like waveform vibrates
+// across the body, its wavelength following the note's pitch. All in SVG
+// coordinates (viewBox 300x560) and clipped to the piano shape.
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function emitSoundWave(keyIdx, freq) {
+    const group = document.getElementById('svg-ripples');
+    if (!group) return;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const keyH = KEYS_HEIGHT / 32;
+    const x0 = KEYS_X;
+    const y0 = keyIdx * keyH + keyH / 2;
+
+    const rings = reduceMotion.matches ? [0] : [0, 0.14, 0.28];
+    rings.forEach(delay => {
+        const ring = document.createElementNS(svgNS, 'circle');
+        ring.setAttribute('class', 'sound-ring');
+        ring.setAttribute('cx', x0);
+        ring.setAttribute('cy', y0);
+        ring.setAttribute('r', 12);
+        ring.style.animationDelay = `${delay}s`;
+        group.appendChild(ring);
+        setTimeout(() => ring.remove(), 1700 + delay * 1000);
+    });
+
+    if (reduceMotion.matches) return;
+
+    const wave = document.createElementNS(svgNS, 'g');
+    const glow = document.createElementNS(svgNS, 'path');
+    const core = document.createElementNS(svgNS, 'path');
+    glow.setAttribute('class', 'sound-wave sound-wave-glow');
+    core.setAttribute('class', 'sound-wave sound-wave-core');
+    wave.append(glow, core);
+    group.appendChild(wave);
+
+    const DURATION = 1500;            // ms the string keeps ringing
+    const SPEED = 0.45;               // svg units per ms the wave front travels
+    const wavelength = 34 * 440 / freq;
+    const k = (2 * Math.PI) / wavelength;
+    const omega = 2 * Math.PI * 0.006; // ~6 oscillations per second
+    const start = performance.now();
+
+    function frame(now) {
+        const t = now - start;
+        if (t >= DURATION) { wave.remove(); return; }
+        const life = 1 - t / DURATION;
+        const front = Math.min(x0, t * SPEED);
+        let d = `M${x0},${y0}`;
+        for (let dist = 2; dist <= front; dist += 2) {
+            // Anchored at the key, swelling, then fading with distance and time;
+            // tapered at the travelling front so it doesn't end in a hard edge.
+            const env = (1 - Math.exp(-dist / 18)) * Math.exp(-dist / 260) * Math.min(1, (front - dist) / 24 + 0.15);
+            const y = y0 + 20 * life * life * env * Math.sin(k * dist - omega * t);
+            d += `L${(x0 - dist).toFixed(1)},${y.toFixed(1)}`;
+        }
+        glow.setAttribute('d', d);
+        core.setAttribute('d', d);
+        wave.setAttribute('opacity', Math.min(1, life * 1.6).toFixed(2));
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
 }
 
 // ─── NAVIGATION ──────────────────────────────────────────────
@@ -245,22 +313,8 @@ function nextStep() {
     // Init & play audio
     playNote(currentStep);
 
-    // Elegant sound wave animation (instead of jumping)
-    const ripples = document.getElementById('svg-ripples');
-    if (ripples) {
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', '150'); // Center relative to viewBox 300x560
-        circle.setAttribute('cy', '375');
-        circle.setAttribute('r', '5');
-        circle.setAttribute('fill', 'none');
-        circle.setAttribute('stroke', 'rgba(255, 255, 255, 0.4)');
-        circle.setAttribute('class', 'svg-ripple-anim');
-        ripples.appendChild(circle);
-        
-        setTimeout(() => {
-            if (circle.parentNode) circle.parentNode.removeChild(circle);
-        }, 1500);
-    }
+    // Sound waves leave the struck key and travel across the piano body
+    emitSoundWave(keyIndexFor(currentStep), AMBIENT_SCALE_FREQ[currentStep] || 440);
 
     // Hide tap hint after first interaction
     if (currentStep === 0) {
@@ -331,6 +385,49 @@ function buildDots() {
 function updateDots() {
     const dots = document.querySelectorAll('.progress-dot');
     dots.forEach((d, i) => d.classList.toggle('active', i === currentStep));
+
+    const restart = document.getElementById('restartBtn');
+    if (restart) {
+        restart.classList.toggle('visible', currentStep > 0);
+        restart.tabIndex = currentStep > 0 ? 0 : -1;
+    }
+}
+
+// ─── RESTART ──────────────────────────────────────────────────
+// Brings the experience back to the first slide with every interaction cleared,
+// so the next visitor (e.g. on a kiosk or a shared screen) starts fresh.
+let formDefaults = null;
+
+function restartExperience() {
+    quizAnswers = { 1: null, 2: null, 3: null };
+    quizScore = 0;
+    statsAnimated = false;
+    document.querySelectorAll('.stat-number[data-target]').forEach(el => { el.textContent = '0'; });
+    document.querySelectorAll('.quiz-btn').forEach(b => b.classList.remove('selected-yes', 'selected-no'));
+    document.getElementById('quiz-result').classList.add('hidden');
+    document.getElementById('quizScoreInput').value = '';
+
+    document.querySelectorAll('.myth-card').forEach(card => {
+        card.classList.remove('revealed');
+        card.setAttribute('aria-pressed', 'false');
+        card.querySelector('.myth-tag').textContent = 'Myth';
+    });
+
+    const formEl = document.getElementById('leadForm');
+    formEl.reset();
+    formEl.style.display = '';
+    formEl.style.opacity = '';
+    document.getElementById('successMessage').classList.add('hidden');
+    if (formDefaults) {
+        document.getElementById('formTitle').textContent = formDefaults.title;
+        document.getElementById('formSubtitle').textContent = formDefaults.subtitle;
+    }
+
+    const hint = document.getElementById('tapHint');
+    if (hint) hint.style.display = '';
+
+    goToStep(0);
+    document.getElementById('restartBtn').blur();
 }
 
 // ─── STAT COUNT-UP ───────────────────────────────────────────
@@ -424,7 +521,6 @@ function flipMyth(card) {
     const revealed = card.classList.toggle('revealed');
     card.setAttribute('aria-pressed', revealed);
     card.querySelector('.myth-tag').textContent = revealed ? 'Fact' : 'Myth';
-    if (revealed) playNote(null, 'C5', 523.25);
 }
 
 // ─── FORM SUBMIT ──────────────────────────────────────────────
@@ -510,5 +606,9 @@ document.head.appendChild(shakeStyle);
 window.addEventListener('DOMContentLoaded', () => {
     generateKeys();
     buildDots();
+    formDefaults = {
+        title: document.getElementById('formTitle').textContent,
+        subtitle: document.getElementById('formSubtitle').textContent
+    };
     initPiano(); // Start loading samples in the background
 });
