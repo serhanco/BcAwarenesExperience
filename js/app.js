@@ -170,29 +170,50 @@ function toggleSound() {
 
 
 // ─── PIANO KEYS GENERATION ───────────────────────────────────
+// Keys are drawn inside the piano SVG (viewBox 300x560) so they always span
+// exactly the body's height, whatever the screen size.
+const KEYS_X = 229;       // left edge of the key strip
+const KEYS_WIDTH = 66;    // up to the body's right edge (x = 295)
+const KEYS_HEIGHT = 555;  // body height
+
 function generateKeys() {
     const container = document.getElementById('piano-keys');
+    const svgNS = 'http://www.w3.org/2000/svg';
     const whiteCount = 32;
+    const keyH = KEYS_HEIGHT / whiteCount;
 
     // Black key pattern per octave (which white key positions have black key above them)
     // In a 7-white-key octave: positions 0,1,3,4,5 have black keys above (not 2 and 6)
     const blackPattern = [true, true, false, true, true, true, false];
 
+    const rect = (cls, x, y, w, h) => {
+        const r = document.createElementNS(svgNS, 'rect');
+        r.setAttribute('class', cls);
+        r.setAttribute('x', x);
+        r.setAttribute('y', y);
+        r.setAttribute('width', w);
+        r.setAttribute('height', h);
+        return r;
+    };
+
     for (let i = 0; i < whiteCount; i++) {
-        const key = document.createElement('div');
-        key.className = 'piano-key';
+        const key = rect('piano-key', KEYS_X, i * keyH, KEYS_WIDTH, keyH);
         key.dataset.keyIndex = i;
-
-        // Add black key above where music theory says so
-        const patternPos = i % 7;
-        if (blackPattern[patternPos]) {
-            const bk = document.createElement('div');
-            bk.className = 'piano-black-key';
-            key.appendChild(bk);
-        }
-
         container.appendChild(key);
     }
+
+    // Black keys sit between two white keys, drawn on top of them
+    const blackH = keyH * 0.58;
+    for (let i = 0; i < whiteCount - 1; i++) {
+        if (!blackPattern[i % 7]) continue;
+        const bk = rect('piano-black-key', KEYS_X, (i + 1) * keyH - blackH / 2, KEYS_WIDTH * 0.62, blackH);
+        bk.setAttribute('rx', 1.5);
+        container.appendChild(bk);
+    }
+
+    // Dark rail between the body and the keys
+    const rail = rect('piano-key-rail', KEYS_X - 1.5, 0, 3, KEYS_HEIGHT);
+    container.appendChild(rail);
 }
 
 /**
@@ -259,9 +280,18 @@ function nextStep() {
 
     // Slide in next
     const next = document.getElementById(`step-${currentStep}`);
-    if (next) next.classList.add('active');
+    if (next) { next.scrollTop = 0; next.classList.add('active'); }
 
     updateDots();
+    onStepEnter();
+}
+
+// Shared by tap/swipe navigation and the progress dots
+function onStepEnter() {
+    if (currentStep > 0) {
+        const hint = document.getElementById('tapHint');
+        if (hint) hint.style.display = 'none';
+    }
 
     // Trigger stats animation on the statistics slide
     if (currentStep === STATS_STEP && !statsAnimated) {
@@ -281,8 +311,9 @@ function goToStep(index) {
     if (cur) { cur.classList.remove('active'); cur.classList.add('out'); setTimeout(() => cur.classList.remove('out'), 800); }
     currentStep = index;
     const next = document.getElementById(`step-${currentStep}`);
-    if (next) next.classList.add('active');
+    if (next) { next.scrollTop = 0; next.classList.add('active'); }
     updateDots();
+    onStepEnter();
 }
 
 // ─── PROGRESS DOTS ───────────────────────────────────────────
@@ -428,22 +459,26 @@ async function submitForm(event) {
 }
 
 // ─── SWIPE SUPPORT (Mobile) ───────────────────────────────────
+// Swipe up = next slide, swipe down = previous slide. When a slide is taller
+// than the screen, the swipe scrolls it first and only changes slide once the
+// reader is already at the bottom (or top).
 (function initSwipe() {
-    let startY = 0;
-    const pianoCol = document.getElementById('pianoColumn');
+    let startX = 0, startY = 0, atTop = true, atBottom = true;
 
     document.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
         startY = e.touches[0].clientY;
+        const slide = e.target.closest && e.target.closest('.step');
+        atTop = !slide || slide.scrollTop <= 1;
+        atBottom = !slide || slide.scrollTop + slide.clientHeight >= slide.scrollHeight - 1;
     }, { passive: true });
 
     document.addEventListener('touchend', e => {
-        const endY = e.changedTouches[0].clientY;
-        const deltaY = startY - endY;
-        // Swipe UP = next slide (threshold: 50px)
-        if (deltaY > 50 && currentStep < TOTAL_STEPS - 1) {
-            // Don't advance if tap was on the piano column (handled by onclick)
-            nextStep();
-        }
+        const deltaX = startX - e.changedTouches[0].clientX;
+        const deltaY = startY - e.changedTouches[0].clientY;
+        if (Math.abs(deltaY) < 50 || Math.abs(deltaY) < Math.abs(deltaX)) return;
+        if (deltaY > 0 && atBottom && currentStep < TOTAL_STEPS - 1) nextStep();
+        else if (deltaY < 0 && atTop && currentStep > 0) goToStep(currentStep - 1);
     }, { passive: true });
 })();
 
