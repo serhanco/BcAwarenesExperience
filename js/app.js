@@ -18,35 +18,44 @@ let quizScore = 0;
 let statsAnimated = false;
 
 // ─── TONE.JS SAMPLER (Salamander Grand Piano) ─────────────────
+// Samples are bundled with the site (audio/piano, CC BY 3.0, see README there)
+// so the real piano is ready almost at once and never depends on a third-party host.
+// Every melody note is at most one semitone away from a sample, so nothing is
+// pitch-shifted far enough to sound synthetic.
 let piano = null;
 let pianoLoaded = false;
 let fallbackSynth = null;
 
 function initPiano() {
     if (typeof Tone === 'undefined') return;
-    
-    // Better electric-piano-like fallback while samples load
-    fallbackSynth = new Tone.PolySynth(Tone.Synth, {
-        oscillator: { type: "triangle8" },
-        envelope: { attack: 0.02, decay: 1.5, sustain: 0.2, release: 2 }
-    }).toDestination();
 
-    // Create sampler immediately. It loads buffers even if context is suspended.
+    // A touch of hall reverb makes the dry samples sound like a piano in a room
+    const reverb = new Tone.Reverb({ decay: 3.2, preDelay: 0.02, wet: 0.28 }).toDestination();
+
+    // Percussive, piano-like tone (struck, then decaying, no organ-style sustain)
+    // used only for the moment before the samples have finished loading
+    fallbackSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'custom', partials: [1, 0.42, 0.2, 0.1, 0.05, 0.025] },
+        envelope: { attack: 0.004, decay: 1.6, sustain: 0, release: 1.2 },
+        volume: -10
+    }).connect(reverb);
+
     piano = new Tone.Sampler({
         urls: {
             'C4': 'C4.mp3',
-            'E4': 'E4.mp3',
-            'G4': 'G4.mp3',
+            'D#4': 'Ds4.mp3',
+            'F#4': 'Fs4.mp3',
             'A4': 'A4.mp3',
             'C5': 'C5.mp3',
+            'D#5': 'Ds5.mp3',
         },
-        baseUrl: 'https://tonejs.github.io/audio/salamander/',
-        release: 2.0,
+        baseUrl: 'audio/piano/',
+        release: 1.6,
+        volume: 6,
         onload: () => {
             pianoLoaded = true;
-            console.log('🎹 Salamander Grand Piano loaded!');
         }
-    }).toDestination();
+    }).connect(reverb);
 }
 
 // ─── MELODY SPLIT FOR SLIDES & FORM ───────────────────────────
@@ -95,52 +104,43 @@ async function unlockAudio() {
 }
 
 // ─── PLAY VIA TONE.JS SAMPLER / SYNTH ─────────────────────────
-function playViaTone(noteName, duration = '2n') {
+function playViaTone(noteName, duration = 2.4) {
     if (typeof Tone === 'undefined' || Tone.context.state !== 'running') return false;
-
-    // Use actual piano samples if loaded
-    if (piano && pianoLoaded) {
-        try {
-            piano.triggerAttackRelease(noteName, duration);
-            return true;
-        } catch(e) { }
-    } 
-    // Otherwise use nice synth fallback
-    else if (fallbackSynth) {
-        try {
-            fallbackSynth.triggerAttackRelease(noteName, duration);
-            return true;
-        } catch(e) { }
+    // Slightly varied touch, like a pianist's hand
+    const velocity = 0.68 + Math.random() * 0.14;
+    const instrument = piano && pianoLoaded ? piano : fallbackSynth;
+    if (!instrument) return false;
+    try {
+        instrument.triggerAttackRelease(noteName, duration, undefined, velocity);
+        return true;
+    } catch (e) {
+        return false;
     }
-    return false;
 }
 
-// ─── PLAY VIA OSCILLATOR (fallback) ───────────────────────────
+// ─── PLAY VIA OSCILLATOR (fallback when Tone.js is unavailable) ───
+// A struck-string envelope: a fast attack, then the tone decays away, with the
+// brighter overtones fading first, as on a real piano.
 function playViaOscillator(freq) {
     if (!audioCtx || audioCtx.state !== 'running') return;
-    const masterGain = audioCtx.createGain();
-    masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.32, audioCtx.currentTime + 0.03);
-    masterGain.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 0.4);
-    masterGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.2);
-    masterGain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    const master = audioCtx.createGain();
+    master.gain.value = 0.28;
+    master.connect(audioCtx.destination);
 
-    const osc1 = audioCtx.createOscillator();
-    osc1.type = 'triangle';
-    osc1.frequency.value = freq;
-    osc1.connect(masterGain);
-    osc1.start(audioCtx.currentTime);
-    osc1.stop(audioCtx.currentTime + 2.2);
-
-    const osc2 = audioCtx.createOscillator();
-    const hg = audioCtx.createGain();
-    hg.gain.value = 0.1;
-    osc2.type = 'sine';
-    osc2.frequency.value = freq * 2;
-    osc2.connect(hg);
-    hg.connect(masterGain);
-    osc2.start(audioCtx.currentTime);
-    osc2.stop(audioCtx.currentTime + 1.0);
+    [[1, 1, 2.4], [2, 0.4, 1.2], [3, 0.18, 0.7], [4, 0.08, 0.45]].forEach(([mult, level, decay]) => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq * mult;
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(level, now + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0005, now + decay);
+        osc.connect(g);
+        g.connect(master);
+        osc.start(now);
+        osc.stop(now + decay + 0.05);
+    });
 }
 
 // ─── UNIFIED playNote() ───────────────────────────────────────
