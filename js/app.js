@@ -18,35 +18,44 @@ let quizScore = 0;
 let statsAnimated = false;
 
 // ─── TONE.JS SAMPLER (Salamander Grand Piano) ─────────────────
+// Samples are bundled with the site (audio/piano, CC BY 3.0, see README there)
+// so the real piano is ready almost at once and never depends on a third-party host.
+// Every melody note is at most one semitone away from a sample, so nothing is
+// pitch-shifted far enough to sound synthetic.
 let piano = null;
 let pianoLoaded = false;
 let fallbackSynth = null;
 
 function initPiano() {
     if (typeof Tone === 'undefined') return;
-    
-    // Better electric-piano-like fallback while samples load
-    fallbackSynth = new Tone.PolySynth(Tone.Synth, {
-        oscillator: { type: "triangle8" },
-        envelope: { attack: 0.02, decay: 1.5, sustain: 0.2, release: 2 }
-    }).toDestination();
 
-    // Create sampler immediately. It loads buffers even if context is suspended.
+    // A touch of hall reverb makes the dry samples sound like a piano in a room
+    const reverb = new Tone.Reverb({ decay: 3.2, preDelay: 0.02, wet: 0.28 }).toDestination();
+
+    // Percussive, piano-like tone (struck, then decaying, no organ-style sustain)
+    // used only for the moment before the samples have finished loading
+    fallbackSynth = new Tone.PolySynth(Tone.Synth, {
+        oscillator: { type: 'custom', partials: [1, 0.42, 0.2, 0.1, 0.05, 0.025] },
+        envelope: { attack: 0.004, decay: 1.6, sustain: 0, release: 1.2 },
+        volume: -10
+    }).connect(reverb);
+
     piano = new Tone.Sampler({
         urls: {
             'C4': 'C4.mp3',
-            'E4': 'E4.mp3',
-            'G4': 'G4.mp3',
+            'D#4': 'Ds4.mp3',
+            'F#4': 'Fs4.mp3',
             'A4': 'A4.mp3',
             'C5': 'C5.mp3',
+            'D#5': 'Ds5.mp3',
         },
-        baseUrl: 'https://tonejs.github.io/audio/salamander/',
-        release: 2.0,
+        baseUrl: 'audio/piano/',
+        release: 1.6,
+        volume: 6,
         onload: () => {
             pianoLoaded = true;
-            console.log('🎹 Salamander Grand Piano loaded!');
         }
-    }).toDestination();
+    }).connect(reverb);
 }
 
 // ─── MELODY SPLIT FOR SLIDES & FORM ───────────────────────────
@@ -95,52 +104,43 @@ async function unlockAudio() {
 }
 
 // ─── PLAY VIA TONE.JS SAMPLER / SYNTH ─────────────────────────
-function playViaTone(noteName, duration = '2n') {
+function playViaTone(noteName, duration = 2.4) {
     if (typeof Tone === 'undefined' || Tone.context.state !== 'running') return false;
-
-    // Use actual piano samples if loaded
-    if (piano && pianoLoaded) {
-        try {
-            piano.triggerAttackRelease(noteName, duration);
-            return true;
-        } catch(e) { }
-    } 
-    // Otherwise use nice synth fallback
-    else if (fallbackSynth) {
-        try {
-            fallbackSynth.triggerAttackRelease(noteName, duration);
-            return true;
-        } catch(e) { }
+    // Slightly varied touch, like a pianist's hand
+    const velocity = 0.68 + Math.random() * 0.14;
+    const instrument = piano && pianoLoaded ? piano : fallbackSynth;
+    if (!instrument) return false;
+    try {
+        instrument.triggerAttackRelease(noteName, duration, undefined, velocity);
+        return true;
+    } catch (e) {
+        return false;
     }
-    return false;
 }
 
-// ─── PLAY VIA OSCILLATOR (fallback) ───────────────────────────
+// ─── PLAY VIA OSCILLATOR (fallback when Tone.js is unavailable) ───
+// A struck-string envelope: a fast attack, then the tone decays away, with the
+// brighter overtones fading first, as on a real piano.
 function playViaOscillator(freq) {
     if (!audioCtx || audioCtx.state !== 'running') return;
-    const masterGain = audioCtx.createGain();
-    masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.32, audioCtx.currentTime + 0.03);
-    masterGain.gain.exponentialRampToValueAtTime(0.15, audioCtx.currentTime + 0.4);
-    masterGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 2.2);
-    masterGain.connect(audioCtx.destination);
+    const now = audioCtx.currentTime;
+    const master = audioCtx.createGain();
+    master.gain.value = 0.28;
+    master.connect(audioCtx.destination);
 
-    const osc1 = audioCtx.createOscillator();
-    osc1.type = 'triangle';
-    osc1.frequency.value = freq;
-    osc1.connect(masterGain);
-    osc1.start(audioCtx.currentTime);
-    osc1.stop(audioCtx.currentTime + 2.2);
-
-    const osc2 = audioCtx.createOscillator();
-    const hg = audioCtx.createGain();
-    hg.gain.value = 0.1;
-    osc2.type = 'sine';
-    osc2.frequency.value = freq * 2;
-    osc2.connect(hg);
-    hg.connect(masterGain);
-    osc2.start(audioCtx.currentTime);
-    osc2.stop(audioCtx.currentTime + 1.0);
+    [[1, 1, 2.4], [2, 0.4, 1.2], [3, 0.18, 0.7], [4, 0.08, 0.45]].forEach(([mult, level, decay]) => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq * mult;
+        g.gain.setValueAtTime(0, now);
+        g.gain.linearRampToValueAtTime(level, now + 0.005);
+        g.gain.exponentialRampToValueAtTime(0.0005, now + decay);
+        osc.connect(g);
+        g.connect(master);
+        osc.start(now);
+        osc.stop(now + decay + 0.05);
+    });
 }
 
 // ─── UNIFIED playNote() ───────────────────────────────────────
@@ -216,6 +216,12 @@ function generateKeys() {
     container.appendChild(rail);
 }
 
+// Map melody notes to approximate key positions on our 32-key strip
+const KEY_MAP = [4, 6, 8, 4, 8, 9, 11, 8, 11, 18];
+function keyIndexFor(step) {
+    return KEY_MAP[step] ?? 16;
+}
+
 /**
  * Highlights the piano key that corresponds to the current melody note.
  * Each note maps to an approximate key position.
@@ -224,12 +230,106 @@ function lightKey(noteIndex) {
     const keys = document.querySelectorAll('.piano-key');
     keys.forEach(k => k.classList.remove('lit'));
 
-    // Map melody notes to approximate key positions on our 32-key strip
-    const keyMap = [4, 6, 8, 4, 8, 9, 11, 8, 11, 18];
-    const idx = keyMap[noteIndex] || 0;
+    const idx = keyIndexFor(noteIndex);
     if (keys[idx]) {
         keys[idx].classList.add('lit');
         setTimeout(() => keys[idx].classList.remove('lit'), 600);
+    }
+}
+
+// ─── SOUND WAVE VISUAL ───────────────────────────────────────
+// Rings pulse out from the struck key while a string-like waveform vibrates
+// across the body, its wavelength following the note's pitch. All in SVG
+// coordinates (viewBox 300x560) and clipped to the piano shape.
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+function emitSoundWave(keyIdx, freq) {
+    const group = document.getElementById('svg-ripples');
+    if (!group) return;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const keyH = KEYS_HEIGHT / 32;
+    const x0 = KEYS_X;
+    const y0 = keyIdx * keyH + keyH / 2;
+
+    const rings = reduceMotion.matches ? [0] : [0, 0.14, 0.28];
+    rings.forEach(delay => {
+        const ring = document.createElementNS(svgNS, 'circle');
+        ring.setAttribute('class', 'sound-ring');
+        ring.setAttribute('cx', x0);
+        ring.setAttribute('cy', y0);
+        ring.setAttribute('r', 12);
+        ring.style.animationDelay = `${delay}s`;
+        group.appendChild(ring);
+        setTimeout(() => ring.remove(), 1700 + delay * 1000);
+    });
+
+    if (reduceMotion.matches) return;
+
+    const wave = document.createElementNS(svgNS, 'g');
+    const glow = document.createElementNS(svgNS, 'path');
+    const core = document.createElementNS(svgNS, 'path');
+    glow.setAttribute('class', 'sound-wave sound-wave-glow');
+    core.setAttribute('class', 'sound-wave sound-wave-core');
+    wave.append(glow, core);
+    group.appendChild(wave);
+
+    const DURATION = 1500;            // ms the string keeps ringing
+    const SPEED = 0.45;               // svg units per ms the wave front travels
+    const wavelength = 34 * 440 / freq;
+    const k = (2 * Math.PI) / wavelength;
+    const omega = 2 * Math.PI * 0.006; // ~6 oscillations per second
+    const start = performance.now();
+
+    function frame(now) {
+        const t = now - start;
+        if (t >= DURATION) { wave.remove(); return; }
+        const life = 1 - t / DURATION;
+        const front = Math.min(x0, t * SPEED);
+        let d = `M${x0},${y0}`;
+        for (let dist = 2; dist <= front; dist += 2) {
+            // Anchored at the key, swelling, then fading with distance and time;
+            // tapered at the travelling front so it doesn't end in a hard edge.
+            const env = (1 - Math.exp(-dist / 18)) * Math.exp(-dist / 260) * Math.min(1, (front - dist) / 24 + 0.15);
+            const y = y0 + 20 * life * life * env * Math.sin(k * dist - omega * t);
+            d += `L${(x0 - dist).toFixed(1)},${y.toFixed(1)}`;
+        }
+        glow.setAttribute('d', d);
+        core.setAttribute('d', d);
+        wave.setAttribute('opacity', Math.min(1, life * 1.6).toFixed(2));
+        requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+}
+
+// ─── DANCING MUSIC NOTES ─────────────────────────────────────
+const NOTE_SYMBOLS = ['#note-eighth', '#note-beamed'];
+const NOTE_COLORS = ['#ffffff', '#ffd6e7'];
+
+function emitMusicNotes(keyIdx) {
+    const group = document.getElementById('svg-notes');
+    if (!group || reduceMotion.matches) return;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const keyH = KEYS_HEIGHT / 32;
+    const y0 = keyIdx * keyH + keyH / 2;
+
+    for (let i = 0; i < 3; i++) {
+        const size = 16 + Math.random() * 8;
+        // Start on the keys and drift left over the dark body as they rise
+        const x = KEYS_X + 6 + Math.random() * 30;
+        const y = y0 + (Math.random() - 0.5) * 16;
+        const note = document.createElementNS(svgNS, 'use');
+        note.setAttribute('href', NOTE_SYMBOLS[(i + keyIdx) % NOTE_SYMBOLS.length]);
+        note.setAttribute('x', x - size / 2);
+        note.setAttribute('y', y - size / 2);
+        note.setAttribute('width', size);
+        note.setAttribute('height', size);
+        note.setAttribute('fill', NOTE_COLORS[i % NOTE_COLORS.length]);
+        note.setAttribute('class', 'music-note');
+        note.style.setProperty('--dx', `${-(30 + Math.random() * 45)}px`);
+        note.style.setProperty('--sway', `${6 + Math.random() * 6}px`);
+        note.style.animationDelay = `${i * 0.12}s`;
+        group.appendChild(note);
+        setTimeout(() => note.remove(), 1900 + i * 120);
     }
 }
 
@@ -245,22 +345,10 @@ function nextStep() {
     // Init & play audio
     playNote(currentStep);
 
-    // Elegant sound wave animation (instead of jumping)
-    const ripples = document.getElementById('svg-ripples');
-    if (ripples) {
-        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', '150'); // Center relative to viewBox 300x560
-        circle.setAttribute('cy', '375');
-        circle.setAttribute('r', '5');
-        circle.setAttribute('fill', 'none');
-        circle.setAttribute('stroke', 'rgba(255, 255, 255, 0.4)');
-        circle.setAttribute('class', 'svg-ripple-anim');
-        ripples.appendChild(circle);
-        
-        setTimeout(() => {
-            if (circle.parentNode) circle.parentNode.removeChild(circle);
-        }, 1500);
-    }
+    // Sound waves leave the struck key and travel across the piano body
+    emitSoundWave(keyIndexFor(currentStep), AMBIENT_SCALE_FREQ[currentStep] || 440);
+    // Music notes dance out of the key, only when a note actually sounds
+    if (soundEnabled && currentStep < QUIZ_STEP - 1) emitMusicNotes(keyIndexFor(currentStep));
 
     // Hide tap hint after first interaction
     if (currentStep === 0) {
@@ -331,6 +419,49 @@ function buildDots() {
 function updateDots() {
     const dots = document.querySelectorAll('.progress-dot');
     dots.forEach((d, i) => d.classList.toggle('active', i === currentStep));
+
+    const restart = document.getElementById('restartBtn');
+    if (restart) {
+        restart.classList.toggle('visible', currentStep > 0);
+        restart.tabIndex = currentStep > 0 ? 0 : -1;
+    }
+}
+
+// ─── RESTART ──────────────────────────────────────────────────
+// Brings the experience back to the first slide with every interaction cleared,
+// so the next visitor (e.g. on a kiosk or a shared screen) starts fresh.
+let formDefaults = null;
+
+function restartExperience() {
+    quizAnswers = { 1: null, 2: null, 3: null };
+    quizScore = 0;
+    statsAnimated = false;
+    document.querySelectorAll('.stat-number[data-target]').forEach(el => { el.textContent = '0'; });
+    document.querySelectorAll('.quiz-btn').forEach(b => b.classList.remove('selected-yes', 'selected-no'));
+    document.getElementById('quiz-result').classList.add('hidden');
+    document.getElementById('quizScoreInput').value = '';
+
+    document.querySelectorAll('.myth-card').forEach(card => {
+        card.classList.remove('revealed');
+        card.setAttribute('aria-pressed', 'false');
+        card.querySelector('.myth-tag').textContent = 'Myth';
+    });
+
+    const formEl = document.getElementById('leadForm');
+    formEl.reset();
+    formEl.style.display = '';
+    formEl.style.opacity = '';
+    document.getElementById('successMessage').classList.add('hidden');
+    if (formDefaults) {
+        document.getElementById('formTitle').textContent = formDefaults.title;
+        document.getElementById('formSubtitle').textContent = formDefaults.subtitle;
+    }
+
+    const hint = document.getElementById('tapHint');
+    if (hint) hint.style.display = '';
+
+    goToStep(0);
+    document.getElementById('restartBtn').blur();
 }
 
 // ─── STAT COUNT-UP ───────────────────────────────────────────
@@ -424,7 +555,6 @@ function flipMyth(card) {
     const revealed = card.classList.toggle('revealed');
     card.setAttribute('aria-pressed', revealed);
     card.querySelector('.myth-tag').textContent = revealed ? 'Fact' : 'Myth';
-    if (revealed) playNote(null, 'C5', 523.25);
 }
 
 // ─── FORM SUBMIT ──────────────────────────────────────────────
@@ -510,5 +640,9 @@ document.head.appendChild(shakeStyle);
 window.addEventListener('DOMContentLoaded', () => {
     generateKeys();
     buildDots();
+    formDefaults = {
+        title: document.getElementById('formTitle').textContent,
+        subtitle: document.getElementById('formSubtitle').textContent
+    };
     initPiano(); // Start loading samples in the background
 });
