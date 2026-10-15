@@ -478,6 +478,16 @@ p.sign-reveal { display: block; }
     color: white;
 }
 
+/* Quiz "next step" button: always takes its space, fades in once all three are answered */
+.quiz-next {
+    width: 100%;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(6px);
+    transition: opacity 0.35s ease, transform 0.35s ease, visibility 0.35s, box-shadow 0.2s;
+}
+.quiz-next.visible { opacity: 1; visibility: visible; transform: none; }
+
 /* ============================================================
    FORM
    ============================================================ */

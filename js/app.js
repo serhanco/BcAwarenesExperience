@@ -466,7 +466,7 @@ function restartExperience() {
     statsAnimated = false;
     document.querySelectorAll('.stat-number[data-target]').forEach(el => { el.textContent = '0'; });
     document.querySelectorAll('.quiz-btn').forEach(b => b.classList.remove('selected-yes', 'selected-no'));
-    document.getElementById('quiz-result').classList.add('hidden');
+    hideQuizResult();
     document.getElementById('quizScoreInput').value = '';
 
     document.querySelectorAll('.myth-card').forEach(card => {
@@ -538,19 +538,23 @@ function isQuizComplete() {
 function showQuizResult() {
     quizScore = [quizAnswers[1], quizAnswers[2], quizAnswers[3]].filter(a => a === 'yes').length;
 
-    const messages = [
-        "Great awareness! Keep it up — stay on track with your annual screening and monthly self-exams.",
-        "We recommend scheduling a screening soon. Our team can guide you through the right next steps.",
-        "Please don't delay. Our breast health specialists are ready to support you with compassion and expertise."
-    ];
-
-    const idx = quizScore === 0 ? 0 : quizScore <= 2 ? 1 : 2;
-    const resultEl = document.getElementById('quiz-result');
-    const textEl = document.getElementById('quiz-result-text');
-    textEl.textContent = messages[idx];
-    resultEl.classList.remove('hidden');
+    // One short button instead of a paragraph; the form that follows carries
+    // the personalised message (see personaliseForm)
+    const labels = ['Learn how to stay on track', 'Learn about my options', 'Learn about my options', 'Ask a specialist a question'];
+    const btn = document.getElementById('quiz-result');
+    document.getElementById('quiz-result-text').textContent = labels[quizScore];
+    btn.classList.add('visible');
+    btn.tabIndex = 0;
+    btn.removeAttribute('aria-hidden');
 
     document.getElementById('quizScoreInput').value = quizScore;
+}
+
+function hideQuizResult() {
+    const btn = document.getElementById('quiz-result');
+    btn.classList.remove('visible');
+    btn.tabIndex = -1;
+    btn.setAttribute('aria-hidden', 'true');
 }
 
 function shakeQuiz() {
