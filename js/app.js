@@ -540,7 +540,7 @@ function showQuizResult() {
 
     // One short button instead of a paragraph; the form that follows carries
     // the personalised message (see personaliseForm)
-    const labels = ['Stay on track', 'Schedule my screening', 'Schedule my screening', 'Talk to a specialist'];
+    const labels = ['Learn how to stay on track', 'Learn about my options', 'Learn about my options', 'Ask a specialist a question'];
     const btn = document.getElementById('quiz-result');
     document.getElementById('quiz-result-text').textContent = labels[quizScore];
     btn.classList.add('visible');
