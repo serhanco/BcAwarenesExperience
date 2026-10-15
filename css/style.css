@@ -208,6 +208,71 @@ h1,h2,h3 { font-family: 'Montserrat', sans-serif; }
 }
 
 /* ============================================================
+   BEYOND THE TOUCH (signs only a mammogram can see)
+   ============================================================ */
+.love-that {
+    font-family: 'Dancing Script', cursive;
+    font-weight: 700;
+    font-size: 1.6em;
+    line-height: 1;
+    color: #fff;
+    display: inline-block;
+    transform: rotate(-4deg);
+    margin-left: 4px;
+}
+.sign-reveal {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+li.sign-reveal {
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+}
+p.sign-reveal, div.sign-reveal { font-weight: inherit; }
+p.sign-reveal { display: block; }
+.sign-dot {
+    flex-shrink: 0;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(255,255,255,0.25);
+}
+/* Each sign appears in turn once the slide is on screen */
+.step.active .sign-reveal {
+    animation: sign-in 0.5s ease both;
+    animation-delay: calc(0.35s + var(--i) * 0.35s);
+}
+@keyframes sign-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .step.active .sign-reveal { animation: none; }
+}
+.cta-btn {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #d6336c;
+    background: #fff;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.cta-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 22px rgba(0,0,0,0.2); }
+.cta-btn:focus-visible { outline: 3px solid rgba(255,255,255,0.8); outline-offset: 2px; }
+
+/* ============================================================
    DOCTORS GRID
    ============================================================ */
 .doctor-card {

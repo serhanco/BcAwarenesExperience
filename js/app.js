@@ -7,10 +7,10 @@
 
 // ─── STATE ───────────────────────────────────────────────────
 let currentStep = 0;
-const TOTAL_STEPS = 13;
-const STATS_STEP = 3;   // Early Detection Saves Lives (count-up stats)
-const QUIZ_STEP = 11;   // One Touch Away
-const FORM_STEP = 12;   // Take Action Today
+const TOTAL_STEPS = 14;
+const STATS_STEP = 4;   // Early Detection Saves Lives (count-up stats)
+const QUIZ_STEP = 12;   // One Touch Away
+const FORM_STEP = 13;   // Take Action Today
 let soundEnabled = true;
 let audioCtx = null;
 let quizAnswers = { 1: null, 2: null, 3: null };
@@ -62,8 +62,8 @@ function initPiano() {
 // The user explicitly requested:
 // "10 slayt için La Vie En Rose'un en ama en bilindik kısmındaki notaları kullanalım"
 
-// Part 1: First 10 notes, one per slide click up to the Myth/Fact slide
-// Visual Notes: DO si la sol mi DO si (7) + la sol mi (3) = 10 notes
+// Part 1: First 11 notes, one per slide click up to the Myth/Fact slide
+// Visual Notes: DO si la sol mi DO si (7) + la sol mi DO (4) = 11 notes
 const AMBIENT_SCALE = [
     'C5', // 1. Quand (DO)
     'B4', // 2. il (si)
@@ -74,12 +74,14 @@ const AMBIENT_SCALE = [
     'B4', // 7. bras (si)
     'A4', // 8. Il (la)
     'G4', // 9. me (sol)
-    'E4'  // 10. par- (mi)
+    'E4', // 10. par- (mi)
+    'C5'  // 11. -le (DO)
 ];
 
 const AMBIENT_SCALE_FREQ = [
     523.25, 493.88, 440.00, 392.00, 329.63,
-    523.25, 493.88, 440.00, 392.00, 329.63
+    523.25, 493.88, 440.00, 392.00, 329.63,
+    523.25
 ];
 
 // Part 2: Just G, A, B, C for the form submit ("la vieeee eeeeen roooseee")
@@ -217,7 +219,7 @@ function generateKeys() {
 }
 
 // Map melody notes to approximate key positions on our 32-key strip
-const KEY_MAP = [4, 6, 8, 4, 8, 9, 11, 8, 11, 18];
+const KEY_MAP = [4, 6, 8, 4, 8, 9, 11, 8, 11, 18, 14];
 function keyIndexFor(step) {
     return KEY_MAP[step] ?? 16;
 }
